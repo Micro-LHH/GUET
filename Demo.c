@@ -1,29 +1,49 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
-int Info(void);
-void Decide(FILE* TempCopy);
-FILE* Device = NULL;
-typedef struct Profile
+#include<string.h>
+#define Version "0.2"
+
+int identify(void);
+
+void decide(FILE* TempCopy);
+
+void init(enum library Lib);
+
+enum library
 {
-	int priority;
+	Ann = 0,Dev
+};
+
+
+typedef struct info     //Device Info
+{
+	int Priority;
 	char Username[7];
 	char Key[21];
 	struct Profile* Link;
-}Creat, * Edit;
+}creat, * edit;
+
+
 int main(void)
 {
 	char Str[255];
 	FILE* Temp = NULL;
 	FILE* Annount = NULL;
-	Device = fopen("Device.txt", "a+");
-	Info();
+	FILE* Device = NULL;
+	identify();
+	Annount = fopen("Annount.txt", "r");
+	if (Annount == NULL)
+		Init(Ann);
+	Device = fopen("Device.txt", "r");
+	if (Device == NULL)
+		init(Dev);
 	while (1)
 	{
 		Temp = fopen("Temp.txt", "w+");
 		printf("\n$");
 		gets(Str);
 		fputs(Str, Temp);
-		Decide(Temp);
+		decide(Temp);
 		break;
 	}
 	fclose(Temp);
@@ -31,7 +51,7 @@ int main(void)
 	return 0;
 }
 
-void Decide(FILE* TempCopy)
+void decide(FILE* TempCopy)
 {
 	char Order[255], Doc[255];
 	while (1)
@@ -42,9 +62,23 @@ void Decide(FILE* TempCopy)
 	}
 }
 
-int Info(void)
+int	identify(void)        //System Info
 {
-	printf("The Light Of Photoelectric\n");
+	printf("The Light Of Photoelectric %s\n", Version);
 	printf("版权所有--GUET  保留所有权利\n\n");
 	printf("代码详情  https://github.com/Micro-LHH/The-Light-Of-Photoelectric");
+	return 0;
+}
+
+void init(enum library Lib)
+{
+	char Judgement[255];
+	if (Lib == Ann)
+		printf("用户数据丢失。。。\n");
+	scanf("是否进入初始化模式(y/n)\n$%s", Judgement);
+	/*while (!(strlen(Judgement) == 1 && (Judgement == "y" || Judgement == "n")))
+	{
+		printf
+	}*/
+	
 }
