@@ -1,84 +1,92 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include<stdio.h>
+#include<stdbool.h>
 #include<string.h>
 #define Version "0.2"
+void identify(void);
 
-int identify(void);
+void judge(enum judment Ord);
 
-void decide(FILE* TempCopy);
+void init(void);
 
-void init(enum library Lib);
+void get_order(void);
+
+FILE* Order = NULL;
+FILE* Annount = NULL;
+FILE* Device = NULL;
 
 enum library
 {
-	Ann = 0,Dev
+	Temp = 0,Dev
 };
 
+enum judment
+{
+	yORn = 0,
+};
 
 typedef struct info     //Device Info
 {
-	int Priority;
 	char Username[7];
 	char Key[21];
+	bool Adm;
 	struct Profile* Link;
 }creat, * edit;
 
 
 int main(void)
 {
-	char Str[255];
-	FILE* Temp = NULL;
-	FILE* Annount = NULL;
-	FILE* Device = NULL;
 	identify();
-	Annount = fopen("Annount.txt", "r");
-	if (Annount == NULL)
-		Init(Ann);
-	Device = fopen("Device.txt", "r");
-	if (Device == NULL)
-		init(Dev);
-	while (1)
-	{
-		Temp = fopen("Temp.txt", "w+");
-		printf("\n$");
-		gets(Str);
-		fputs(Str, Temp);
-		decide(Temp);
-		break;
-	}
-	fclose(Temp);
+	init();
+	
+	fclose(Order);
+	fclose(Annount);
 	fclose(Device);
 	return 0;
 }
 
-void decide(FILE* TempCopy)
-{
-	char Order[255], Doc[255];
-	while (1)
-	{
-		fscanf(TempCopy, Order);
 
+void judge(enum judment Jud)
+{
+	char Judge[255] = { 0 };
+	fscanf_s(Order, Judge);
+	switch (Jud)
+	{
+	case yORn:
+		break;
+	default:
 		break;
 	}
 }
 
-int	identify(void)        //System Info
+
+void identify(void)        //System Info
 {
 	printf("The Light Of Photoelectric %s\n", Version);
 	printf("版权所有--GUET  保留所有权利\n\n");
 	printf("代码详情  https://github.com/Micro-LHH/The-Light-Of-Photoelectric");
-	return 0;
 }
 
-void init(enum library Lib)
+void init(void)
 {
-	char Judgement[255];
-	if (Lib == Ann)
-		printf("用户数据丢失。。。\n");
-	scanf("是否进入初始化模式(y/n)\n$%s", Judgement);
-	/*while (!(strlen(Judgement) == 1 && (Judgement == "y" || Judgement == "n")))
+	Order = fopen("Temp.txt", "w+");
+	Annount = fopen("Annount.txt", "r");
+	if (Annount == NULL)
 	{
-		printf
-	}*/
+		printf("用户数据丢失。。。\n");
+		printf("是否进入初始化模式(y/n)\n$");
+		get_order();
+		judge(yORn);
+	}
 	
+}
+
+
+void get_order(void)
+{
+	char Command[255] = { 0 };
+	gets(Command);
+	if (strlen(Command) == 255)
+		Command[254] = '\0';
+	fputs(Command, Order);
 }
