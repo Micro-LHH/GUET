@@ -24,14 +24,18 @@ void close(void);
 
 void login(logup AnnCopy);
 
+logup* read_profile(void);
+
 FILE* Command = NULL;
 FILE* Annount = NULL;
 FILE* Device = NULL;
 FILE* Info = NULL;
 
+logup* AdmHLink;
+
 enum identifier
 {
-	YORN = 0, LENGTH, ADMNAME, PASSWORD, LS, ADD, RM, LOG,
+	YORN = 0, LENGTH, ADMNAME, PASSWORD, LOG, COMMAND
 };
 
 typedef struct profile     //Administrator Info
@@ -39,7 +43,7 @@ typedef struct profile     //Administrator Info
 	char AdmName[11];
 	char Password[13];
 	bool Permission;
-	struct Profile* Link;
+	logup* AdmLink;
 }logup;
 
 typedef struct equipment   //Device Info
@@ -91,7 +95,7 @@ void init(void)
 	else
 	{
 		printf("Login/Logup\n");
-		if (identify(1, LOG) == "Login")
+		if (identify(1, LOG) == "login")
 			;
 		else
 			login(init_profile);
@@ -145,9 +149,12 @@ char* identify(int VaNum, ...)
 
 	case LOG:
 		if ((ID == "Login") || (ID == "login"))
-			return "Login";
+			return "login";
 		else if ((ID == "Logup") || (ID == "logup"))
-			return "Logup";
+			return "logup";
+
+
+	case COMMAND:
 	default:
 		printf("请输入正确的命令\n");
 		return identify(VaNum,VaList[0]);
@@ -187,11 +194,21 @@ void edit_profile(int VaNum, ...)
 
 void open(void)
 {
+	logup* fp = NULL;
 	Command = fopen("Command.txt", "w+");
 	Annount = fopen("Annount.txt", "r");
+	Info = fopen("Info.text", "r");
 	if (Annount != NULL)
 	{
-
+		fgets(NULL, 255, Annount);
+		AdmHLink = read_profile();
+		AdmHLink->AdmLink = fp = read_profile();
+		while (fp != NULL)
+			fp = fp->AdmLink = read_profile();
+		if (Info != NULL)
+		{
+			;
+		}
 	}
 }
 
@@ -204,11 +221,33 @@ void close(void)
 
 void login(logup AnnCopy)
 {
-
+	bool License = AnnCopy.Permission;
+	do
+	{
+		;
+	} while (identify(Command) != "quit");
 }
 
 
 void quit(void)
 {
 
+}
+
+logup* read_profile(void)
+{
+	logup Pro = { "", "", false, NULL };
+	char Information[255] = "";
+	fgets(Information, 255, Annount);
+	if (Information == "")
+		return NULL;
+	fputs(Information, Command);
+	fscanf_s(Command, Information);
+	strcpy_s(&Pro.AdmName, 11, Information);
+	fscanf_s(Command, Information);
+	strcpy_s(&Pro.Password, 13, Information);
+	fscanf_s(Command, Information);
+	if (Command == "true")
+		Pro.Permission = true;
+	return &Pro;
 }
