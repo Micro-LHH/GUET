@@ -4,6 +4,32 @@
 #include<string.h>
 #include<stdarg.h>
 #define Version "0.3"
+
+FILE* File = NULL;
+
+struct profile* AdmHLink;
+
+enum identifier
+{
+	YORN = 0, LENGTH, ADMNAME, PASSWORD, LOG, COMMAND
+};
+
+typedef struct profile     //Administrator Info
+{
+	char AdmName[11];
+	char Password[13];
+	bool Permission;
+	struct profile* AdmLink;
+}logup;
+
+typedef struct equipment   //Device Info
+{
+	char DevName[11];
+	char Model[13];
+
+};
+
+
 void logo(void);
 
 void init(void);
@@ -22,43 +48,16 @@ void open(void);
 
 void close(void);
 
-void login(logup AnnCopy);
+void login(logup* AnnCopy);
 
 logup* read_profile(void);
-
-FILE* Command = NULL;
-FILE* Annount = NULL;
-FILE* Device = NULL;
-FILE* Info = NULL;
-
-logup* AdmHLink;
-
-enum identifier
-{
-	YORN = 0, LENGTH, ADMNAME, PASSWORD, LOG, COMMAND
-};
-
-typedef struct profile     //Administrator Info
-{
-	char AdmName[11];
-	char Password[13];
-	bool Permission;
-	logup* AdmLink;
-}logup;
-
-typedef struct equipment   //Device Info
-{
-	char DevName[11];
-	char Model[13];
-	
-};
-
 
 int main(void)
 {
 	logo();
 	init();
 	quit();
+	close();
 	return 0;
 }
 
@@ -67,23 +66,23 @@ void logo(void)        //System Info
 {
 	printf("The Light Of Photoelectric %s\n", Version);
 	printf("版权所有--GUET  保留所有权利\n\n");
-	printf("代码详情  https://github.com/Micro-LHH/The-Light-Of-Photoelectric");
+	printf("代码详情  https://github.com/Micro-LHH/The-Light-Of-Photoelectric\n\n\n");
 }
 
 
 void init(void)
 {
-	open();
 	logup* Ann = NULL;
-	if (Annount == NULL)
+	File = fopen("Annount", "r");
+	if (File == NULL)
 	{
+		get_link();
+		fclose(File);
 		printf_s("用户数据丢失。。。\n");
 		printf_s("是否进入初始化模式(y/n)\n$");
-		if (identify(1, YORN) == "y")
+		if (strcmp(identify(1, YORN), "y") == 0)
 		{
 			printf_s("初始化中。。。\nSuperadministrator\n");
-			Annount = fopen("Device.txt", "a+");
-			fputs("AdmName\tPassword\tPermission\n", Annount);
 			Ann = init_profile();
 			login(Ann);
 		}
@@ -107,10 +106,10 @@ void init(void)
 char* get_order(void)
 {
 	char OrderLine[255] = "";
+	File = fopen("Command.txt", "w");
 	gets_s(OrderLine, 255);
-	if (strlen(OrderLine) == 255)
-		OrderLine[254] = '\0';
-	fputs(OrderLine, Command);
+	fwrite(OrderLine, 1, 255, File);
+	fclose(File);
 	return OrderLine;
 }
 
@@ -121,18 +120,20 @@ char* identify(int VaNum, ...)
 	va_list VaList;
 	va_start(VaList, VaNum);
 	get_order();
-	fscanf_s(Command, ID);
+	File = fopen("Command.txt", "r");
+	fscanf_(File, ID);
+	printf("%s", ID);
+	fclose(File);
 	switch (VaList[0])
 	{
 	case YORN:
-		if ((ID == "y")||(ID == "Y"))
-			return "y";
-		else if ((ID == "n")||(ID == "N"))
+		if ((strcmp(ID, "y") == 0) || (strcmp(ID, "Y") == 0))
+			return "y"; 
+		else if ((strcmp(ID, "n") == 0)||(strcmp(ID, "N") == 0))
 			return "n";
 		else
 		{
 			printf_s("请输入正确的命令(y/n)\n");
-			get_order();
 			return identify(1, VaList[0]);
 		}
 
@@ -148,9 +149,9 @@ char* identify(int VaNum, ...)
 
 
 	case LOG:
-		if ((ID == "Login") || (ID == "login"))
+		if ((strcmp(ID, "Login") == 0) || (strcmp(ID, "login") == 0))
 			return "login";
-		else if ((ID == "Logup") || (ID == "logup"))
+		else if ((strcmp(ID, "Logup") == 0) || (strcmp(ID, "logup") == 0))
 			return "logup";
 
 
@@ -192,36 +193,30 @@ void edit_profile(int VaNum, ...)
 }
 
 
-void open(void)
+void get_link(void)
 {
 	logup* fp = NULL;
-	Command = fopen("Command.txt", "w+");
-	Annount = fopen("Annount.txt", "r");
-	Info = fopen("Info.text", "r");
-	if (Annount != NULL)
+	if (File != NULL)
 	{
-		fgets(NULL, 255, Annount);
 		AdmHLink = read_profile();
 		AdmHLink->AdmLink = fp = read_profile();
 		while (fp != NULL)
 			fp = fp->AdmLink = read_profile();
-		if (Info != NULL)
-		{
-			;
-		}
 	}
 }
 
 
 void close(void)
 {
-
+	File = fopen("Annount.txt", "w");
+	fputs("AdmName\tPassword\tPermission\n", File);
+	
 }
 
 
-void login(logup AnnCopy)
+void login(logup* AnnCopy)
 {
-	bool License = AnnCopy.Permission;
+	bool License = AnnCopy->Permission;
 	do
 	{
 		;
@@ -238,15 +233,12 @@ logup* read_profile(void)
 {
 	logup Pro = { "", "", false, NULL };
 	char Information[255] = "";
-	fgets(Information, 255, Annount);
-	if (Information == "")
-		return NULL;
-	fputs(Information, Command);
-	fscanf_s(Command, Information);
+	fgets(Information, 255, File);
+	fgets(Information, , File)
 	strcpy_s(&Pro.AdmName, 11, Information);
-	fscanf_s(Command, Information);
+	fgets(Information, , File)
 	strcpy_s(&Pro.Password, 13, Information);
-	fscanf_s(Command, Information);
+	fgets(Information, , File)
 	if (Command == "true")
 		Pro.Permission = true;
 	return &Pro;
