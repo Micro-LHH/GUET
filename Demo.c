@@ -7,8 +7,6 @@
 
 FILE* File = NULL;
 
-struct profile* AdmHLink;
-
 enum identifier
 {
 	YORN = 0, LENGTH, ADMNAME, PASSWORD, LOG, COMMAND
@@ -21,6 +19,8 @@ typedef struct profile     //Administrator Info
 	bool Permission;
 	struct profile* AdmLink;
 }logup;
+
+logup* AdmHLink;
 
 typedef struct equipment   //Device Info
 {
@@ -208,9 +208,13 @@ void get_link(void)
 
 void close(void)
 {
+	logup* fp = AdmHLink;
 	File = fopen("Annount.txt", "w");
 	fputs("AdmName\tPassword\tPermission\n", File);
-	
+	do
+	{
+		fwrite(fp->AdmName);
+	} while (true);
 }
 
 
