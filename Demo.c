@@ -220,7 +220,7 @@ void login(logup* AnnCopy)
 	do
 	{
 		;
-	} while (identify(Command) != "quit");
+	} while (identify(COMMAND) != "quit");
 }
 
 
@@ -234,12 +234,12 @@ logup* read_profile(void)
 	logup Pro = { "", "", false, NULL };
 	char Information[255] = "";
 	fgets(Information, 255, File);
-	fgets(Information, , File)
+	fgets(Information, 15, File);
 	strcpy_s(&Pro.AdmName, 11, Information);
-	fgets(Information, , File)
+	fgets(Information, 17, File);
 	strcpy_s(&Pro.Password, 13, Information);
-	fgets(Information, , File)
-	if (Command == "true")
+	fgets(Information, 5, File);
+	if (Information == "true")
 		Pro.Permission = true;
 	return &Pro;
 }
