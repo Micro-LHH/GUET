@@ -3,6 +3,7 @@
 #include<stdbool.h>
 #include<string.h>
 #include<stdarg.h>
+#include<stdlib.h>
 #define Version "0.3"
 
 FILE* File = NULL;
@@ -42,7 +43,7 @@ char* identify(int VaNum, ...);
 
 logup* init_profile(void);
 
-void edit_profile(int VaNum, ...);
+char* edit_profile(int VaNum, ...);
 
 void get_link(void);
 
@@ -82,6 +83,7 @@ void init(void)
 		{
 			printf_s("初始化中。。。\nSuperadministrator\n");
 			Ann = init_profile();
+			Ann->Permission = true;
 			login(Ann);
 		}
 		else
@@ -115,14 +117,16 @@ char* get_order(void)
 
 char* identify(int VaNum, ...)
 {
-	char ID[255] = "";
 	va_list VaList;
 	va_start(VaList, VaNum);
+	enum identifer Identify = va_arg(VaList, enum identifier);
+	char ID[255] = "";
+	int Length = 0;
 	get_order();
 	File = fopen("Command.txt", "r");
 	fscanf_s(File, "%s", ID, 255);
 	fclose(File);
-	switch (va_arg(VaList, enum identifier))
+	switch (Identify)
 	{
 	case YORN:
 		if ((strcmp(ID, "y") == 0) || (strcmp(ID, "Y") == 0))
@@ -132,17 +136,18 @@ char* identify(int VaNum, ...)
 		else
 		{
 			printf_s("请输入正确的命令(y/n)\n");
-			return identify(1, VaList[0]);
+			return identify(1, Identify);
 		}
 
 
 	case LENGTH:
-		if (strlen(ID) <= va_arg(VaList, int))
+		Length = va_arg(VaList, int);
+		if (strlen(ID) <= Length)
 			return ID;
 		else
 		{
 			printf_s("请输入正确长度的命令(<=%d)\n", va_arg(VaList, int));
-			return identify(2, va_arg(VaList, enum identifier), va_arg(VaList, int));
+			return identify(2, Identify, Length);
 		}
 
 
@@ -154,9 +159,11 @@ char* identify(int VaNum, ...)
 
 
 	case COMMAND:
+		if (strcmp(ID, "help"))
+			system("HELP");
 	default:
 		printf("请输入正确的命令\n");
-		return identify(VaNum, va_arg(VaList, enum identifier));
+		return identify(VaNum, Identify);
 	}
 }
 
@@ -172,25 +179,27 @@ logup* init_profile()
 }
 
 
-void edit_profile(int VaNum, ...)
+char* edit_profile(int VaNum, ...)
 {
-	char* Edit = NULL;
 	va_list VaList;
 	va_start(VaList, VaNum);
-	switch (va_arg(VaList, enum identifier))
+	enum identifer Identify = va_arg(VaList, enum identifier);
+	char* Edit = NULL;
+	switch (Identify)
 	{
 	case ADMNAME:
 		Edit = identify(2, LENGTH, 10);
-		strcpy_s(va_arg(VaList, logup*), strlen(Edit) + 1, Edit);
-		break;
+		strcpy_s(va_arg(VaList, logup*)->AdmName, strlen(Edit) + 1, Edit);
+		return Edit;
 	case PASSWORD:
 		Edit = identify(2, LENGTH, 12);
-		strcpy_s(va_arg(VaList, logup*), strlen(Edit) + 1, Edit);
-		break;
+		strcpy_s(va_arg(VaList, logup*)->Password, strlen(Edit) + 1, Edit);
+		return Edit;
 	default:
 		break;
 	}
 	va_end(VaList);
+	return NULL;
 }
 
 
@@ -232,9 +241,14 @@ void close(void)
 void login(logup* AnnCopy)
 {
 	bool License = AnnCopy->Permission;
+	for (int i = 0; i <= strlen(AnnCopy->AdmName); i++)
+	{
+		printf_s("%c", AnnCopy->AdmName[i]);
+	}
+	
 	do
 	{
-		;
+		printf("\n$");
 	} while (identify(COMMAND) != "quit");
 }
 
