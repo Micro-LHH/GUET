@@ -4,6 +4,7 @@
 #include<string.h>
 #include<stdarg.h>
 #include<stdlib.h>
+#include<malloc.h>
 #define Version "0.3"
 
 FILE* File = NULL;
@@ -84,11 +85,12 @@ void init(void)
 			printf_s("初始化中。。。\nSuperadministrator\n");
 			Ann = init_profile();
 			Ann->Permission = true;
-			login(Ann);
+			
 		}
 		else
 		{
 			printf("正在退出。。。\n");
+			quit();
 		}
 	}
 	else
@@ -98,9 +100,9 @@ void init(void)
 		if (identify(1, LOG) == "login")
 			;
 		else
-			login(init_profile);
+			Ann = init_profile();
 	}
-	
+	login(Ann);
 }
 
 
@@ -170,12 +172,18 @@ char* identify(int VaNum, ...)
 
 logup* init_profile()
 {
-	logup Profile = { "", "", false, NULL };
+	logup* Profile;
+	Profile = (logup*)malloc((sizeof(logup)));
 	printf_s("请输入用户名(<=10):");
-	edit_profile(2, ADMNAME, &Profile);
+	edit_profile(2, ADMNAME, Profile);
 	printf_s("密码(<=12):");
-	edit_profile(2, PASSWORD, &Profile);
-	return &Profile;
+	edit_profile(2, PASSWORD, Profile);
+	if (Profile != NULL)
+	{
+		Profile->Permission = false;
+		return Profile;
+	}
+	return NULL;
 }
 
 
@@ -241,11 +249,11 @@ void close(void)
 void login(logup* AnnCopy)
 {
 	bool License = AnnCopy->Permission;
-	for (int i = 0; i <= strlen(AnnCopy->AdmName); i++)
+	/*for (int i = 0; i <= strlen(AnnCopy->AdmName); i++)
 	{
 		printf_s("%c", AnnCopy->AdmName[i]);
-	}
-	
+	}*/
+	printf_s("%s", AnnCopy->AdmName);
 	do
 	{
 		printf("\n$");
@@ -255,20 +263,23 @@ void login(logup* AnnCopy)
 
 void quit(void)
 {
-
+	exit(0);
 }
 
 logup* read_profile(void)
 {
-	logup Pro = { "", "", false, NULL };
+	logup* Profile;
+	Profile = (logup*)malloc((sizeof(logup)));
 	char Information[255] = "";
 	fgets(Information, 255, File);
 	fgets(Information, 15, File);
-	strcpy_s(&Pro.AdmName, 11, Information);
+	strcpy_s(Profile->AdmName, 11, Information);
 	fgets(Information, 17, File);
-	strcpy_s(&Pro.Password, 13, Information);
+	strcpy_s(Profile->Password, 13, Information);
 	fgets(Information, 5, File);
 	if (Information == "true")
-		Pro.Permission = true;
-	return &Pro;
+		Profile->Permission = true;
+	else
+		Profile->Permission = false;
+	return Profile;
 }
