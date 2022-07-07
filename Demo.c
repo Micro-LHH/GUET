@@ -5,7 +5,7 @@
 #include<stdarg.h>
 #include<stdlib.h>
 #include<malloc.h>
-#define Version "0.3"
+#define Version "0.4"
 
 FILE* File = NULL;
 
@@ -80,28 +80,27 @@ void init(void)
 	{
 		printf_s("用户数据丢失。。。\n");
 		printf_s("是否进入初始化模式(y/n)\n$");
-		if (strcmp(identify(1, YORN), "y") == 0)
+		if (strcmp(identify(2, YORN, "$"), "y") == 0)
 		{
 			printf_s("初始化中。。。\nSuperadministrator\n");
-			Ann = init_profile();
-			Ann->Permission = true;
-			
+			AdmHLink = init_profile();
+			AdmHLink->Permission = true;
+			Ann = AdmHLink;
 		}
-		else
-		{
-			printf("正在退出。。。\n");
+		else	
 			quit();
-		}
 	}
 	else
 	{
 		get_link();
-		printf("Login/Logup\n");
-		if (identify(1, LOG) == "login")
+		printf("Login/Logup\n$");
+		if (identify(2, LOG, "$") == "login")
 			;
 		else
 			Ann = init_profile();
 	}
+	system("cls");
+	logo();
 	login(Ann);
 }
 
@@ -122,51 +121,75 @@ char* identify(int VaNum, ...)
 	va_list VaList;
 	va_start(VaList, VaNum);
 	enum identifer Identify = va_arg(VaList, enum identifier);
+	int Length = va_arg(VaList, int);
+	char* Command = va_arg(VaList, char*);
 	char ID[255] = "";
-	int Length = 0;
-	get_order();
-	File = fopen("Command.txt", "r");
-	fscanf_s(File, "%s", ID, 255);
-	fclose(File);
-	switch (Identify)
+	while (true)
 	{
-	case YORN:
-		if ((strcmp(ID, "y") == 0) || (strcmp(ID, "Y") == 0))
-			return "y"; 
-		else if ((strcmp(ID, "n") == 0)||(strcmp(ID, "N") == 0))
-			return "n";
-		else
+		while (true)
 		{
-			printf_s("请输入正确的命令(y/n)\n");
-			return identify(1, Identify);
+			get_order();
+			File = fopen("Command.txt", "r");
+			fscanf_s(File, "%s", ID, 255);
+			fclose(File);
+			if (strcmp(ID, "") == 0)
+				printf_s("%s", Command);
+			else
+				break;
 		}
+		switch (Identify)
+		{
+		case YORN:
+			if ((strcmp(ID, "y") == 0) || (strcmp(ID, "Y") == 0))
+			{
+				va_end(VaList);
+				return "y";
+			}
+			else if ((strcmp(ID, "n") == 0) || (strcmp(ID, "N") == 0))
+			{
+				va_end(VaList);
+				return "n";
+			}
+			else
+				printf_s("请输入合法的命令(y/n)\n$");
+			break;
 
+		case LENGTH:
+			if (strlen(ID) <= Length)
+			{
+				va_end(VaList);
+				return ID;
+			}
+			else
+				printf_s("请输入合法长度的命令(<=%d)\n$", Length);
+			break;
 
-	case LENGTH:
-		Length = va_arg(VaList, int);
-		if (strlen(ID) <= Length)
+		case LOG:
+			if ((strcmp(ID, "Login") == 0) || (strcmp(ID, "login") == 0))
+			{
+				va_end(VaList);
+				return "login";
+			}
+			else if ((strcmp(ID, "Logup") == 0) || (strcmp(ID, "logup") == 0))
+			{
+				va_end(VaList);
+				return "logup";
+			}
+			else
+				printf_s("请输入和法的命令(login/logup)\n");
+			break;
+
+		case COMMAND:
+			if (strcmp(ID, "help") == 0)
+				system("HELP");
+			va_end(VaList);
 			return ID;
-		else
-		{
-			printf_s("请输入正确长度的命令(<=%d)\n", va_arg(VaList, int));
-			return identify(2, Identify, Length);
+		default:
+			printf("请输入合法的命令\n$");
+			break;
 		}
-
-
-	case LOG:
-		if ((strcmp(ID, "Login") == 0) || (strcmp(ID, "login") == 0))
-			return "login";
-		else if ((strcmp(ID, "Logup") == 0) || (strcmp(ID, "logup") == 0))
-			return "logup";
-
-
-	case COMMAND:
-		if (strcmp(ID, "help"))
-			system("HELP");
-	default:
-		printf("请输入正确的命令\n");
-		return identify(VaNum, Identify);
 	}
+	
 }
 
 
@@ -175,9 +198,9 @@ logup* init_profile()
 	logup* Profile;
 	Profile = (logup*)malloc((sizeof(logup)));
 	printf_s("请输入用户名(<=10):");
-	edit_profile(2, ADMNAME, Profile);
-	printf_s("密码(<=12):");
-	edit_profile(2, PASSWORD, Profile);
+	edit_profile(3, ADMNAME, Profile);
+	printf_s("请输入密码(<=12):");
+	edit_profile(3, PASSWORD, Profile);
 	if (Profile != NULL)
 	{
 		Profile->Permission = false;
@@ -196,17 +219,16 @@ char* edit_profile(int VaNum, ...)
 	switch (Identify)
 	{
 	case ADMNAME:
-		Edit = identify(2, LENGTH, 10);
+		Edit = identify(3, LENGTH, 10, "请输入用户名(<=10):");
 		strcpy_s(va_arg(VaList, logup*)->AdmName, strlen(Edit) + 1, Edit);
 		return Edit;
 	case PASSWORD:
-		Edit = identify(2, LENGTH, 12);
+		Edit = identify(3, LENGTH, 12, "请输入密码(<=12):");
 		strcpy_s(va_arg(VaList, logup*)->Password, strlen(Edit) + 1, Edit);
 		return Edit;
 	default:
 		break;
 	}
-	va_end(VaList);
 	return NULL;
 }
 
@@ -224,23 +246,24 @@ void get_link(void)
 void close(void)
 {
 	int i = 0;
-	
 	File = fopen("Annount.txt", "w");
-	fputs("AdmName\tPassword\tPermission\n", File);
+	fputs("AdmName   \tPassword    \tPermission\n", File);
+	fclose(File);
+	File = fopen("Annount.txt", "a");
 	for (logup* fp = AdmHLink; fp != NULL; fp = fp->AdmLink)
 	{
-		for (i = strlen(fp->AdmName); i < 9; i++)
-			fp->AdmName[i] = ' ';
-		fp->AdmName[10] = '\0';
-		fwrite(fp->AdmName, 1, 11, File);
-		for (i = strlen(fp->Password); i < 11; i++)
-			fp->Password[i] = ' ';
-		fp->Password[12] = '\0';
-		fwrite(fp->Password, 1, 13, File);
+		fputs(File, fp->AdmName);
+		for (i = strlen(fp->AdmName); i < 11; i++)
+			fputs(File, " ");
+		fputs(File, "\t");
+		fputs(File, fp->Password);
+		for (i = strlen(fp->Password); i < 13; i++)
+			fputs(File, " ");
+		fputs(File, "\t");
 		if (fp->Permission)
-			fwrite("true", 1, 5, File);
+			fputs(File, "true\n");
 		else
-			fwrite("false", 1, 6, File);
+			fputs(File, "false\n");
 	}
 	fclose(File);
 }
@@ -253,16 +276,22 @@ void login(logup* AnnCopy)
 	{
 		printf_s("%c", AnnCopy->AdmName[i]);
 	}*/
-	printf_s("%s", AnnCopy->AdmName);
-	do
+	printf_s("%s\n", AnnCopy->AdmName);
+	if (License)
 	{
-		printf("\n$");
-	} while (identify(COMMAND) != "quit");
+		while (true)
+		{
+			printf_s("$");
+			if (strcmp(identify(2, COMMAND, "$"), "quit") == 0)
+				break;
+		}
+	}
 }
 
 
 void quit(void)
 {
+	printf("正在退出。。。\n");
 	exit(0);
 }
 
