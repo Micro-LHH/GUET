@@ -22,7 +22,8 @@ typedef struct profile     //Administrator Info
 	struct profile* AdmLink;
 }logup;
 
-logup* AdmHLink;
+int index = 0;
+logup* AdmHLink = NULL;
 
 //typedef struct equipment   //Device Info
 //{
@@ -38,13 +39,13 @@ void init(void);
 
 void quit(void);
 
-char* get_order(void);
+void get_order(void);
 
 char* identify(int VaNum, ...);
 
 logup* init_profile(void);
 
-char* edit_profile(int VaNum, ...);
+void edit_profile(int VaNum, ...);
 
 void get_link(void);
 
@@ -52,7 +53,9 @@ void close(void);
 
 void login(logup* AnnCopy);
 
-logup* read_profile(void);
+logup* read_profile(logup* Profile);
+
+void write(char* fp, char* chr);
 
 int main(void)
 {
@@ -75,7 +78,8 @@ void logo(void)        //System Info
 void init(void)
 {
 	logup* Ann = NULL;
-	File = fopen("Annount", "r");
+	AdmHLink = (logup*)malloc(sizeof(logup));
+	File = fopen("Annount.txt", "r");
 	if (File == NULL)
 	{
 		printf_s("用户数据丢失。。。\n");
@@ -86,6 +90,7 @@ void init(void)
 			AdmHLink = init_profile();
 			AdmHLink->Permission = true;
 			Ann = AdmHLink;
+			index = 1;
 		}
 		else	
 			quit();
@@ -105,14 +110,13 @@ void init(void)
 }
 
 
-char* get_order(void)
+void get_order(void)
 {
 	char OrderLine[255] = "";
 	File = fopen("Command.txt", "w");
 	gets_s(OrderLine, 255);
 	fwrite(OrderLine, 1, strlen(OrderLine), File);
 	fclose(File);
-	return OrderLine;
 }
 
 
@@ -123,7 +127,7 @@ char* identify(int VaNum, ...)
 	enum identifer Identify = va_arg(VaList, enum identifier);
 	int Length = va_arg(VaList, int);
 	char* Command = va_arg(VaList, char*);
-	char ID[255] = "";
+	static char ID[255] = "";
 	while (true)
 	{
 		while (true)
@@ -210,7 +214,7 @@ logup* init_profile()
 }
 
 
-char* edit_profile(int VaNum, ...)
+void edit_profile(int VaNum, ...)
 {
 	va_list VaList;
 	va_start(VaList, VaNum);
@@ -221,24 +225,27 @@ char* edit_profile(int VaNum, ...)
 	case ADMNAME:
 		Edit = identify(3, LENGTH, 10, "请输入用户名(<=10):");
 		strcpy_s(va_arg(VaList, logup*)->AdmName, strlen(Edit) + 1, Edit);
-		return Edit;
+		break;
 	case PASSWORD:
 		Edit = identify(3, LENGTH, 12, "请输入密码(<=12):");
 		strcpy_s(va_arg(VaList, logup*)->Password, strlen(Edit) + 1, Edit);
-		return Edit;
+		break;
 	default:
 		break;
 	}
-	return NULL;
 }
 
 
 void get_link(void)
 {
 	logup* fp = NULL;
-	AdmHLink->AdmLink = fp = read_profile();
-	while (fp != NULL)
-		fp = fp->AdmLink = read_profile();
+	char* Null = "";
+	fgets(Null, 255, File);
+	fp = read_profile(AdmHLink);
+	do
+	{
+		fp = read_profile(fp);
+	} while (fp == AdmHLink);
 	fclose(File);
 }
 
@@ -246,26 +253,23 @@ void get_link(void)
 void close(void)
 {
 	int i = 0;
+	logup* fp = AdmHLink;
 	File = fopen("Annount.txt", "w");
-	fputs("AdmName   \tPassword    \tPermission\n", File);
+	fputs("AdmName\tPassword\tPermission\n", File);
 	fclose(File);
-	File = fopen("Annount.txt", "a");
-	for (logup* fp = AdmHLink; fp != NULL; fp = fp->AdmLink)
+	for (int i = 0; i < index; i++ )
 	{
-		fputs(File, fp->AdmName);
-		for (i = strlen(fp->AdmName); i < 11; i++)
-			fputs(File, " ");
-		fputs(File, "\t");
-		fputs(File, fp->Password);
-		for (i = strlen(fp->Password); i < 13; i++)
-			fputs(File, " ");
-		fputs(File, "\t");
+		write("Annount.txt", fp->AdmName);
+		write("Annount.txt", "\t");
+		write("Annount.txt", fp->Password);
+		write("Annount.txt", "\t");
 		if (fp->Permission)
-			fputs(File, "true\n");
+			write("Annount.txt", "true");
 		else
-			fputs(File, "false\n");
+			write("Annount.txt", "false");
+		write("Annount.txt", "\n\n\n");
+		fp = fp->AdmLink;
 	}
-	fclose(File);
 }
 
 
@@ -295,20 +299,29 @@ void quit(void)
 	exit(0);
 }
 
-logup* read_profile(void)
+logup* read_profile(logup* Profile)
 {
-	logup* Profile;
-	Profile = (logup*)malloc((sizeof(logup)));
 	char Information[255] = "";
-	fgets(Information, 255, File);
-	fgets(Information, 15, File);
+	fscanf_s(File, "%s", Information, 1);
+	if (strcmp(Information, "") == 0)
+		return AdmHLink;
 	strcpy_s(Profile->AdmName, 11, Information);
-	fgets(Information, 17, File);
+	fscanf_s(File, "%s", Information, 1);
 	strcpy_s(Profile->Password, 13, Information);
-	fgets(Information, 5, File);
+	fscanf_s(File, "%s", Information, 1);
 	if (Information == "true")
 		Profile->Permission = true;
 	else
 		Profile->Permission = false;
-	return Profile;
+	index++;
+	Profile->AdmLink = NULL;
+	return Profile->AdmLink;
+}
+
+
+void write(char* fp, char* chr)
+{
+	FILE* File = fopen(fp, "a");
+	fprintf_s(File, "%s", chr);
+	fclose(File);
 }
