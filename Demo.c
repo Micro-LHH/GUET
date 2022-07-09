@@ -55,8 +55,6 @@ void login(logup* AnnCopy);
 
 logup* read_profile(logup* Profile);
 
-void write(char* fp, char* chr);
-
 int main(void)
 {
 	logo();
@@ -78,7 +76,6 @@ void logo(void)        //System Info
 void init(void)
 {
 	logup* Ann = NULL;
-	AdmHLink = (logup*)malloc(sizeof(logup));
 	File = fopen("Annount.txt", "r");
 	if (File == NULL)
 	{
@@ -87,6 +84,7 @@ void init(void)
 		if (strcmp(identify(2, YORN, "$"), "y") == 0)
 		{
 			printf_s("初始化中。。。\nSuperadministrator\n");
+			AdmHLink = (logup*)malloc(sizeof(logup));
 			AdmHLink = init_profile();
 			AdmHLink->Permission = true;
 			Ann = AdmHLink;
@@ -127,7 +125,7 @@ char* identify(int VaNum, ...)
 	enum identifer Identify = va_arg(VaList, enum identifier);
 	int Length = va_arg(VaList, int);
 	char* Command = va_arg(VaList, char*);
-	static char ID[255] = "";
+	char ID[255] = "";
 	while (true)
 	{
 		while (true)
@@ -167,6 +165,7 @@ char* identify(int VaNum, ...)
 			else
 				printf_s("请输入合法长度的命令(<=%d)\n$", Length);
 			break;
+
 
 		case LOG:
 			if ((strcmp(ID, "Login") == 0) || (strcmp(ID, "login") == 0))
@@ -240,12 +239,13 @@ void get_link(void)
 {
 	logup* fp = NULL;
 	char* Null = "";
-	fgets(Null, 255, File);
+	/*fgets(Null, 255, File);
+	fclose(File);*/
 	fp = read_profile(AdmHLink);
 	do
 	{
 		fp = read_profile(fp);
-	} while (fp == AdmHLink);
+	} while (fp != AdmHLink);
 	fclose(File);
 }
 
@@ -254,12 +254,13 @@ void close(void)
 {
 	int i = 0;
 	logup* fp = AdmHLink;
+	char License[6];
 	File = fopen("Annount.txt", "w");
-	fputs("AdmName\tPassword\tPermission\n", File);
+	//fputs("AdmName\tPassword\tPermission\n", File);
 	fclose(File);
 	for (int i = 0; i < index; i++ )
 	{
-		write("Annount.txt", fp->AdmName);
+		/*write("Annount.txt", fp->AdmName);
 		write("Annount.txt", "\t");
 		write("Annount.txt", fp->Password);
 		write("Annount.txt", "\t");
@@ -267,7 +268,14 @@ void close(void)
 			write("Annount.txt", "true");
 		else
 			write("Annount.txt", "false");
-		write("Annount.txt", "\n\n\n");
+		write("Annount.txt", "\n\n\n");*/
+		if (fp->Permission)
+			strcpy_s(License, 1, "true");
+		else
+			strcpy_s(License, 1, "false");
+		File = fopen("Annount.txt", "a");
+		fprintf_s(File, "%s\t%s\t%s\n\n\n", fp->AdmName, fp->Password, License);
+		fclose(File);
 		fp = fp->AdmLink;
 	}
 }
@@ -301,27 +309,32 @@ void quit(void)
 
 logup* read_profile(logup* Profile)
 {
-	char Information[255] = "";
-	fscanf_s(File, "%s", Information, 1);
-	if (strcmp(Information, "") == 0)
-		return AdmHLink;
-	strcpy_s(Profile->AdmName, 11, Information);
-	fscanf_s(File, "%s", Information, 1);
-	strcpy_s(Profile->Password, 13, Information);
-	fscanf_s(File, "%s", Information, 1);
-	if (Information == "true")
-		Profile->Permission = true;
-	else
-		Profile->Permission = false;
-	index++;
-	Profile->AdmLink = NULL;
-	return Profile->AdmLink;
+	char Name[11];
+	char Pass[13];
+	char License[6];
+	Profile = (logup*)malloc(sizeof(logup));
+	if (Profile != NULL)
+	{
+		if (fscanf_s(File, "%s\t%s\t%s\n\n\n", Name, 11, Pass, 13, License, 6) == -1)
+			return AdmHLink;
+		Name[10] = '\0';
+		strcpy_s(Profile->AdmName, 11, Name);
+		Pass[12] = '\0';
+		strcpy_s(Profile->Password, 13, Pass);
+		License[5] = '\0';
+		if (strcmp(License, "true") == 0)
+			Profile->Permission = true;
+		else
+			Profile->Permission = false;
+		return Profile->AdmLink;
+	}
+	return NULL;
 }
 
 
-void write(char* fp, char* chr)
-{
-	FILE* File = fopen(fp, "a");
-	fprintf_s(File, "%s", chr);
-	fclose(File);
-}
+//void write(char* fp, char* chr)
+//{
+//	FILE* File = fopen(fp, "a");
+//	fprintf_s(File, "%s", chr);
+//	fclose(File);
+//}
