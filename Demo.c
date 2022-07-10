@@ -11,7 +11,7 @@ FILE* File = NULL;
 
 enum identifier
 {
-	NOTHING = 0, YORN , LENGTH, ADMNAME, PASSWORD, LOG, COMMAND
+	NOTHING = 0, YORN , LENGTH, ADMNAME, PASSWORD, LOG, COMMAND, CHECK
 };
 
 typedef struct profile     //Administrator Info
@@ -22,7 +22,7 @@ typedef struct profile     //Administrator Info
 	struct profile* AdmLink;
 }logup;
 
-int index = 0;
+int Index = 1;
 logup* AdmHLink = NULL;
 logup* Annount = NULL;
 
@@ -56,7 +56,9 @@ void login(void);
 
 logup* read_profile(logup* Profile);
 
-logup* check_profile(char* chr);
+bool check_profile(char* chr);
+
+bool link(logup* Profile, int Ind);
 
 int main(void)
 {
@@ -90,7 +92,6 @@ void init(void)
 			AdmHLink = init_profile();
 			AdmHLink->Permission = true;
 			Annount = AdmHLink;
-			index = 1;
 		}
 		else	
 			quit();
@@ -98,11 +99,26 @@ void init(void)
 	else
 	{
 		get_link();
-		printf("Login/Logup\n$");
-		if (identify(2, LOG, "$") == "login")
-			identify(1 ,ADMNAME);
-		else
-			Annount = init_profile();
+		while (true)
+		{
+			printf("Login/Logup\n$");
+			if (identify(2, LOG, "$") == "login")
+			{
+				printf_s("用户名:");
+				if (strcmp(identify(CHECK, ADMNAME, "用户名:"), "y") == 0)
+					break;
+				else
+				{
+					system("cls");
+					logo();
+				}
+			}
+			else
+			{
+				Annount = init_profile();
+				break;
+			}
+		}
 	}
 	system("cls");
 	logo();
@@ -125,6 +141,7 @@ char* identify(int VaNum, ...)
 	va_list VaList;
 	va_start(VaList, VaNum);
 	enum identifer Identify = va_arg(VaList, enum identifier);
+	enum identifier Check = va_arg(VaList, enum identifier);
 	int Length = va_arg(VaList, int);
 	char* Command = va_arg(VaList, char*);
 	char ID[255] = "";
@@ -183,6 +200,49 @@ char* identify(int VaNum, ...)
 			else
 				printf_s("请输入和法的命令(login/logup)\n");
 			break;
+
+
+		case CHECK:
+			switch (Check)
+			{
+			case ADMNAME:
+				if (check_profile(ID))
+				{
+					printf_s("密码:");
+					identifer(Identify, Check, "密码:");
+					va_end(VaList);
+					return "y";
+				}
+				else
+				{
+					printf_s("查无此账号,是否创建(y/n)\n");
+					if (strcmp(identifer(YORN, "是否创建(y/n)\n"), "y") == 0)
+					{
+						Annount = init_profile();
+						va_end(VaList);
+						link(Annount, Index);
+						return "y";
+					}
+					else
+						return "n";
+				}
+				break;
+			case PASSWORD:
+				if (strcmp(ID, Annount->Password) == 0)
+					return "y";
+				else
+				{
+					printf_s("密码错误\n%s",Command);
+					static err = 0;
+					err++;
+					if (err == 5)
+						return "n";
+					return identify(Identify, Check, Command);
+				}
+				break;
+			default:
+				break;
+			}
 
 		case COMMAND:
 			if (strcmp(ID, "help") == 0)
@@ -246,6 +306,7 @@ void get_link(void)
 	fp = read_profile(AdmHLink);
 	do
 	{
+		Index++;
 		fp = read_profile(fp);
 	} while (fp != AdmHLink);
 	fclose(File);
@@ -260,7 +321,7 @@ void close(void)
 	File = fopen("Annount.txt", "w");
 	//fputs("AdmName\tPassword\tPermission\n", File);
 	fclose(File);
-	for (int i = 0; i < index; i++ )
+	for (int i = 0; i < Index; i++ )
 	{
 		/*write("Annount.txt", fp->AdmName);
 		write("Annount.txt", "\t");
@@ -342,14 +403,28 @@ logup* read_profile(logup* Profile)
 //}
 
 
-logup* check_profile(char* chr)
+bool check_profile(char* chr)
 {
 	logup* fp = AdmHLink;
 	do
 	{
-		if (strcmp(fp->AdmName, chr))
+		if (strcmp(fp->AdmName, chr) == 0)
 		{
-
+			Annount = fp;
+			return true;
 		}
-	} while (true);
+		fp = fp->AdmLink;
+	} while (fp != NULL);
+	return false;
+}
+
+
+bool link(logup* Profile, int ind)
+{
+	logup* fp = AdmHLink;
+	for (int i = 0; i < ind; i++)
+		fp = fp->AdmLink;
+	Profile->AdmLink = fp->AdmLink;
+	fp->AdmLink = Profile;
+	Index++;
 }
