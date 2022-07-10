@@ -24,6 +24,7 @@ typedef struct profile     //Administrator Info
 
 int index = 0;
 logup* AdmHLink = NULL;
+logup* Annount = NULL;
 
 //typedef struct equipment   //Device Info
 //{
@@ -51,9 +52,11 @@ void get_link(void);
 
 void close(void);
 
-void login(logup* AnnCopy);
+void login(void);
 
 logup* read_profile(logup* Profile);
+
+logup* check_profile(char* chr);
 
 int main(void)
 {
@@ -75,7 +78,6 @@ void logo(void)        //System Info
 
 void init(void)
 {
-	logup* Ann = NULL;
 	File = fopen("Annount.txt", "r");
 	if (File == NULL)
 	{
@@ -87,7 +89,7 @@ void init(void)
 			AdmHLink = (logup*)malloc(sizeof(logup));
 			AdmHLink = init_profile();
 			AdmHLink->Permission = true;
-			Ann = AdmHLink;
+			Annount = AdmHLink;
 			index = 1;
 		}
 		else	
@@ -98,13 +100,13 @@ void init(void)
 		get_link();
 		printf("Login/Logup\n$");
 		if (identify(2, LOG, "$") == "login")
-			;
+			identify(1 ,ADMNAME);
 		else
-			Ann = init_profile();
+			Annount = init_profile();
 	}
 	system("cls");
 	logo();
-	login(Ann);
+	login();
 }
 
 
@@ -281,14 +283,14 @@ void close(void)
 }
 
 
-void login(logup* AnnCopy)
+void login(void)
 {
-	bool License = AnnCopy->Permission;
+	bool License = Annount->Permission;
 	/*for (int i = 0; i <= strlen(AnnCopy->AdmName); i++)
 	{
 		printf_s("%c", AnnCopy->AdmName[i]);
 	}*/
-	printf_s("%s\n", AnnCopy->AdmName);
+	printf_s("%s\n", Annount->AdmName);
 	if (License)
 	{
 		while (true)
@@ -338,3 +340,16 @@ logup* read_profile(logup* Profile)
 //	fprintf_s(File, "%s", chr);
 //	fclose(File);
 //}
+
+
+logup* check_profile(char* chr)
+{
+	logup* fp = AdmHLink;
+	do
+	{
+		if (strcmp(fp->AdmName, chr))
+		{
+
+		}
+	} while (true);
+}
