@@ -12,7 +12,7 @@ FILE* File = NULL;
 
 enum identifier
 {
-	NOTHING = 0, YORN , ADMNAME, PASSWORD, LOG, COMMAND, CHECK
+	NOTHING = 0, YORN , NAME, PASSWORD, LOG, CHECK, REMARK
 };
 
 typedef struct profile     //Administrator Info
@@ -30,16 +30,24 @@ logup* Annount = NULL;
 typedef struct equipment   //Device Info
 {
 	char DevName[11];
-	char Model[16];
-	time_t PurchaseTime;
-	char StorageLocation[16];
-	logup* Master;
+	char Remark[17];
+	char PurchaseTime[17];
+	char StorageLocation[17];
+	char Master[10];
 	bool Situation;
-	logup* Borrower;
-	time_t BorrowTime;
-	time_t ReturnTime;
+	struct equipment* EquLink;
 }creat;
 
+typedef struct info
+{
+	logup* Borrower;
+	creat* Loaned;
+	time_t BorrowTime;
+	time_t ReturnTime;
+}generate;
+
+int count = 0;
+creat* EquHLink = NULL;
 
 void logo(void);
 
@@ -68,6 +76,10 @@ logup* creat_profile(void);
 logup* new_profile(char* Name);
 
 void get_equipment(void);
+
+creat* creat_equipment(void);
+
+void merege(creat* Equipment, int Cou);
 
 int main(void)
 {
@@ -110,7 +122,7 @@ void init(void)
 			if (strcmp(identify(2, LOG, "$"), "login") == 0)
 			{
 				printf_s("用户名:");
-				if (strcmp(identify(3, CHECK, "用户名:", ADMNAME), "y") == 0)
+				if (strcmp(identify(3, CHECK, "用户名:", NAME), "y") == 0)
 					break;
 				else
 				{
@@ -195,7 +207,7 @@ char* identify(int VaNum, ...)
 				printf_s("'%s'请输入合法的命令(login/logup)\n%s", ID, Command);
 			break;
 
-		case ADMNAME:
+		case NAME:
 			if (strlen(ID) <= 10)
 			{
 				va_end(VaList);
@@ -215,17 +227,10 @@ char* identify(int VaNum, ...)
 				printf_s("'%s'请输入合法长度的命令(<=12)\n$", ID);
 			break;
 
-		case COMMAND:
-			if (strcmp(ID, "help") == 0)
-				system("HELP");
-			va_end(VaList);
-			return ID;
-
-
 		case CHECK:
 			switch (Check)
 			{
-			case ADMNAME:
+			case NAME:
 				if (check_profile(ID))
 				{
 					printf_s("密码:");
@@ -279,11 +284,11 @@ logup* init_profile(bool License)
 		if (Index == 0)
 			AdmHLink = Profile;
 		printf_s("请输入用户名(<=10):");
-		Edit = identify(3, ADMNAME, "请输入用户名(<=10):");
+		Edit = identify(2, NAME, "请输入用户名(<=10):");
 		check_profile(Edit);
 		strcpy_s(Profile->AdmName, strlen(Edit) + 1, Edit);
 		printf_s("请输入密码(<=12):");
-		Edit = identify(3, PASSWORD, "请输入密码(<=12):");
+		Edit = identify(2, PASSWORD, "请输入密码(<=12):");
 		strcpy_s(Profile->Password, strlen(Edit) + 1, Edit);
 		Profile->Permission = License;
 		Profile->AdmLink = NULL;
@@ -332,8 +337,7 @@ void login(void)
 		while (true)
 		{
 			printf_s("$");
-			if (strcmp(identify(2, COMMAND, "$"), "quit") == 0)
-				break;
+			
 		}
 	}
 	else
@@ -341,8 +345,7 @@ void login(void)
 		while (true)
 		{
 			printf_s(">");
-			if (strcmp(identify(2, COMMAND, ">"), "quit") == 0)
-				break;
+			
 		}
 	}
 }
@@ -445,12 +448,94 @@ logup* new_profile(char* Name)
 void get_equipment(void)
 {
 	char Name[11];
-	char Mod[16];
-	time_t Purchase;
-	char Storage[16];
-	char BorrowerName[11];
-	bool Sit;
+	char Rem[17];
+	char Purchase[17];
 	char MasterName[11];
-	time_t Borrow;
-	time_t Return;
+	char Storage[17];
+	char Sit[6];
+	creat* fp = EquHLink = creat_equipment();
+	File = fopen("Annount.txt", "r");
+	while (true)
+	{
+		if (fp != NULL)
+		{
+			if (fscanf_s(File, "%s%s%s%s%s%s\n\n\n", Name, 11, Rem, 17, Purchase, 17, Storage, 17, MasterName, 11, Sit, 6) == -1)
+			{
+				free(fp);
+				break;
+			}
+			Name[10] = '\0';
+			strcpy_s(fp->DevName, strlen(Name) + 1, Name);
+			Rem[16] = '\0';
+			strcpy_s(fp->Remark, strlen(Rem) + 1, Rem);
+			Purchase[16] = '\0';
+			strcpy_s(fp->PurchaseTime, strlen(Purchase) + 1, Purchase);
+			MasterName[10] = '\0';
+			strcpy_s(fp->Master, strlen(MasterName) + 1, MasterName);
+			Storage[16] = '\0';
+			strcpy_s(fp->StorageLocation, strlen(Storage) + 1, Storage);
+			MasterName[10] = '\0';
+			strcpy_s(fp->Master, strlen(MasterName) + 1, MasterName);
+			Sit[5] = '\0';
+			if (strcmp(Sit, "true") == 0)
+				fp->Situation = true;
+			else
+				fp->Situation = false;
+			fp->EquLink = NULL;
+			count++;
+			fp = creat_profile();
+		}
+	}
+	fclose(File);
+}
+
+
+creat* creat_equipment(void)
+{
+	creat* Equipment = (creat*)malloc(sizeof(creat));
+	return Equipment;
+}
+
+
+creat* init_equipment(void)
+{
+	creat* Equipment = creat_equipment();
+	char* Edit = NULL;
+	if (Equipment != NULL)
+	{
+		if (EquHLink == NULL)
+			EquHLink = Equipment;
+		printf_s("请输入设备名(<=10):");
+		Edit = identify(2, NAME, "请输入设备(<=10):");
+		strcpy_s(Equipment->DevName, strlen(Edit) + 1, Edit);
+		printf_s("请输入设备型号(<=16):");
+		Edit = identify(2, REMARK, "请输入设别型号(<=16):");
+		strcpy_s(Equipment->Remark, strlen(Edit) + 1, Edit);
+		printf_s("请输入采购时间(<=16):");
+		Edit = identify(2, REMARK, "请输入采购时间(<=16):");
+		strcpy_s(Equipment->PurchaseTime, strlen(Edit) + 1, Edit);
+		printf_s("请输入设备负责人姓名(<=10):");
+		Edit = identify(2, NAME, "请输入负责人姓名(<=10):");
+		strcpy_s(Equipment->Master, strlen(Edit) + 1, Edit);
+		printf_s("请输入储存位置(<=16):");
+		Edit = identify(2, REMARK, "请输入储存位置(<=16):");
+		strcpy_s(Equipment->StorageLocation, strlen(Edit) + 1, Edit);
+		Equipment->Situation = false;
+		Equipment->EquLink = NULL;
+		merege(Equipment, count);
+		return Equipment;
+	}
+	return NULL;
+}
+
+
+void merege(creat* Equipment, int Cou)
+{
+	creat* fp = EquHLink;
+	for (int i = 0; i < Cou - 2; i++)
+		fp = fp->EquLink;
+	if (Cou < count)
+		Equipment->EquLink = fp->EquLink;
+	fp->EquLink = Equipment;
+	count++;
 }
