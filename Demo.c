@@ -4,13 +4,15 @@
 #include<string.h>
 #include<stdarg.h>
 #include<stdlib.h>
-#define Version "0.3"
+#include<malloc.h>
+#include<time.h>
+#define Version "0.4"
 
 FILE* File = NULL;
 
 enum identifier
 {
-	NOTHING = 0, YORN , LENGTH, ADMNAME, PASSWORD, LOG, COMMAND
+	NOTHING = 0, YORN , NAME, PASSWORD, LOG, CHECK, REMARK
 };
 
 typedef struct profile     //Administrator Info
@@ -21,15 +23,31 @@ typedef struct profile     //Administrator Info
 	struct profile* AdmLink;
 }logup;
 
-logup* AdmHLink;
+int Index = 0;
+logup* AdmHLink = NULL; 
+logup* Annount = NULL;
 
-//typedef struct equipment   //Device Info
-//{
-//	char DevName[11];
-//	char Model[13];
-//
-//};
+typedef struct equipment   //Device Info
+{
+	char DevName[11];
+	char Remark[17];
+	char PurchaseTime[17];
+	char StorageLocation[17];
+	char Master[10];
+	bool Situation;
+	struct equipment* EquLink;
+}creat;
 
+typedef struct info
+{
+	logup* Borrower;
+	creat* Loaned;
+	time_t BorrowTime;
+	time_t ReturnTime;
+}generate;
+
+int count = 0;
+creat* EquHLink = NULL;
 
 void logo(void);
 
@@ -37,27 +55,36 @@ void init(void);
 
 void quit(void);
 
-char* get_order(void);
+void get_order(void);
 
 char* identify(int VaNum, ...);
 
-logup* init_profile(void);
+logup* init_profile(bool License);
 
-char* edit_profile(int VaNum, ...);
-
-void get_link(void);
+void get_profile(void);
 
 void close(void);
 
-void login(logup* AnnCopy);
+void login(void);
 
-logup* read_profile(void);
+bool check_profile(char* chr);
+
+bool link(logup* Profile, int Ind);
+
+logup* creat_profile(void);
+
+logup* new_profile(char* Name);
+
+void get_equipment(void);
+
+creat* creat_equipment(void);
+
+void merege(creat* Equipment, int Cou);
 
 int main(void)
 {
 	logo();
 	init();
-	close();
 	quit();
 	return 0;
 }
@@ -73,45 +100,56 @@ void logo(void)        //System Info
 
 void init(void)
 {
-	logup* Ann = NULL;
-	File = fopen("Annount", "r");
-	if (File == NULL)
+	get_profile();
+	get_equipment();
+	if (Index == 0)
 	{
 		printf_s("用户数据丢失。。。\n");
 		printf_s("是否进入初始化模式(y/n)\n$");
-		if (strcmp(identify(1, YORN), "y") == 0)
+		if (strcmp(identify(2, YORN, "$"), "y") == 0)
 		{
 			printf_s("初始化中。。。\nSuperadministrator\n");
-			Ann = init_profile();
-			Ann->Permission = true;
-			login(Ann);
+			Annount = AdmHLink = init_profile(true);
 		}
-		else
-		{
-			printf("正在退出。。。\n");
-		}
+		else	
+			quit();
 	}
 	else
 	{
-		get_link();
-		printf("Login/Logup\n");
-		if (identify(1, LOG) == "login")
-			;
-		else
-			login(init_profile);
+		while (true)
+		{
+			printf("Login/Logup\n$");
+			if (strcmp(identify(2, LOG, "$"), "login") == 0)
+			{
+				printf_s("用户名:");
+				if (strcmp(identify(3, CHECK, "用户名:", NAME), "y") == 0)
+					break;
+				else
+				{
+					system("cls");
+					logo();
+				}
+			}
+			else
+			{
+				Annount = init_profile(false);
+				break;
+			}
+		}
 	}
-	
+	system("cls");
+	logo();
+	login();
 }
 
 
-char* get_order(void)
+void get_order(void)
 {
 	char OrderLine[255] = "";
 	File = fopen("Command.txt", "w");
 	gets_s(OrderLine, 255);
 	fwrite(OrderLine, 1, strlen(OrderLine), File);
 	fclose(File);
-	return OrderLine;
 }
 
 
@@ -119,156 +157,385 @@ char* identify(int VaNum, ...)
 {
 	va_list VaList;
 	va_start(VaList, VaNum);
-	enum identifer Identify = va_arg(VaList, enum identifier);
+	enum identifier Identify = va_arg(VaList, enum identifier);
+	char* Command = va_arg(VaList, char*);
+	enum identifier Check = va_arg(VaList, enum identifier);
 	char ID[255] = "";
-	int Length = 0;
-	get_order();
-	File = fopen("Command.txt", "r");
-	fscanf_s(File, "%s", ID, 255);
-	fclose(File);
-	switch (Identify)
+	while (true)
 	{
-	case YORN:
-		if ((strcmp(ID, "y") == 0) || (strcmp(ID, "Y") == 0))
-			return "y"; 
-		else if ((strcmp(ID, "n") == 0)||(strcmp(ID, "N") == 0))
-			return "n";
-		else
+		while (true)
 		{
-			printf_s("请输入正确的命令(y/n)\n");
-			return identify(1, Identify);
+			get_order();
+			File = fopen("Command.txt", "r");
+			if (fscanf_s(File, "%s", ID, 255) == -1)
+				strcpy(ID, "");
+			fclose(File);
+			if (strcmp(ID, "") == 0)
+				printf_s("%s", Command);
+			else
+				break;
 		}
-
-
-	case LENGTH:
-		Length = va_arg(VaList, int);
-		if (strlen(ID) <= Length)
-			return ID;
-		else
+		switch (Identify)
 		{
-			printf_s("请输入正确长度的命令(<=%d)\n", va_arg(VaList, int));
-			return identify(2, Identify, Length);
+		case YORN:
+			if ((strcmp(ID, "y") == 0) || (strcmp(ID, "Y") == 0))
+			{
+				va_end(VaList);
+				return "y";
+			}
+			else if ((strcmp(ID, "n") == 0) || (strcmp(ID, "N") == 0))
+			{
+				va_end(VaList);
+				return "n";
+			}
+			else
+				printf_s("'%s'请输入合法的命令(y/n)\n%s",ID, Command);
+			break;
+
+		case LOG:
+			if ((strcmp(ID, "Login") == 0) || (strcmp(ID, "login") == 0))
+			{
+				va_end(VaList);
+				return "login";
+			}
+			else if ((strcmp(ID, "Logup") == 0) || (strcmp(ID, "logup") == 0))
+			{
+				va_end(VaList);
+				return "logup";
+			}
+			else
+				printf_s("'%s'请输入合法的命令(login/logup)\n%s", ID, Command);
+			break;
+
+		case NAME:
+			if (strlen(ID) <= 10)
+			{
+				va_end(VaList);
+				return ID;
+			}
+			else
+				printf_s("'%s'请输入合法长度的命令(<=10)\n$", ID);
+			break;
+			
+		case PASSWORD:
+			if (strlen(ID) <= 12)
+			{
+				va_end(VaList);
+				return ID;
+			}
+			else
+				printf_s("'%s'请输入合法长度的命令(<=12)\n$", ID);
+			break;
+
+		case CHECK:
+			switch (Check)
+			{
+			case NAME:
+				if (check_profile(ID))
+				{
+					printf_s("密码:");
+					Check = PASSWORD;
+					Command = "密码:";
+				}
+				else
+				{
+					printf_s("查无此账号,是否创建(y/n)\n");
+					if (strcmp(identify(2, YORN, "是否创建(y/n)\n"), "y") == 0)
+					{
+						Annount = new_profile(ID);
+						va_end(VaList);
+						link(Annount, Index);
+						return "y";
+					}
+					else
+						return "n";
+				}
+				break;
+			case PASSWORD:
+				if (strcmp(ID, Annount->Password) == 0)
+					return "y";
+				else
+				{
+					printf_s("密码错误,请重新输入\n%s",Command);
+					int err = 0;
+					err++;
+					if (err == 5)
+						return "n";
+				}
+				break;
+			default:
+				break;
+			}
+
+		default:
+			break;
 		}
-
-
-	case LOG:
-		if ((strcmp(ID, "Login") == 0) || (strcmp(ID, "login") == 0))
-			return "login";
-		else if ((strcmp(ID, "Logup") == 0) || (strcmp(ID, "logup") == 0))
-			return "logup";
-
-
-	case COMMAND:
-		if (strcmp(ID, "help"))
-			system("HELP");
-	default:
-		printf("请输入正确的命令\n");
-		return identify(VaNum, Identify);
 	}
+	
 }
 
 
-logup* init_profile()
+logup* init_profile(bool License)
 {
-	logup Profile = { "", "", false, NULL };
-	printf_s("请输入用户名(<=10):");
-	edit_profile(2, ADMNAME, &Profile);
-	printf_s("密码(<=12):");
-	edit_profile(2, PASSWORD, &Profile);
-	return &Profile;
-}
-
-
-char* edit_profile(int VaNum, ...)
-{
-	va_list VaList;
-	va_start(VaList, VaNum);
-	enum identifer Identify = va_arg(VaList, enum identifier);
+	logup* Profile = creat_profile();
 	char* Edit = NULL;
-	switch (Identify)
+	if (Profile != NULL)
 	{
-	case ADMNAME:
-		Edit = identify(2, LENGTH, 10);
-		strcpy_s(va_arg(VaList, logup*)->AdmName, strlen(Edit) + 1, Edit);
-		return Edit;
-	case PASSWORD:
-		Edit = identify(2, LENGTH, 12);
-		strcpy_s(va_arg(VaList, logup*)->Password, strlen(Edit) + 1, Edit);
-		return Edit;
-	default:
-		break;
+		if (Index == 0)
+			AdmHLink = Profile;
+		printf_s("请输入用户名(<=10):");
+		Edit = identify(2, NAME, "请输入用户名(<=10):");
+		check_profile(Edit);
+		strcpy_s(Profile->AdmName, strlen(Edit) + 1, Edit);
+		printf_s("请输入密码(<=12):");
+		Edit = identify(2, PASSWORD, "请输入密码(<=12):");
+		strcpy_s(Profile->Password, strlen(Edit) + 1, Edit);
+		Profile->Permission = License;
+		Profile->AdmLink = NULL;
+		link(Profile, Index);
+		return Profile;
 	}
-	va_end(VaList);
 	return NULL;
-}
-
-
-void get_link(void)
-{
-	logup* fp = NULL;
-	AdmHLink->AdmLink = fp = read_profile();
-	while (fp != NULL)
-		fp = fp->AdmLink = read_profile();
-	fclose(File);
 }
 
 
 void close(void)
 {
-	int i = 0;
-	
+	logup* fp = AdmHLink;
+	char chr[36] = "";
 	File = fopen("Annount.txt", "w");
-	fputs("AdmName\tPassword\tPermission\n", File);
-	for (logup* fp = AdmHLink; fp != NULL; fp = fp->AdmLink)
-	{
-		for (i = strlen(fp->AdmName); i < 9; i++)
-			fp->AdmName[i] = ' ';
-		fp->AdmName[10] = '\0';
-		fwrite(fp->AdmName, 1, 11, File);
-		for (i = strlen(fp->Password); i < 11; i++)
-			fp->Password[i] = ' ';
-		fp->Password[12] = '\0';
-		fwrite(fp->Password, 1, 13, File);
-		if (fp->Permission)
-			fwrite("true", 1, 5, File);
-		else
-			fwrite("false", 1, 6, File);
-	}
 	fclose(File);
+	for (int i = 0; i < Index; i++ )
+	{
+		strcpy_s(chr, strlen(fp->AdmName)+1, fp->AdmName);
+		for (int j = strlen(fp->AdmName); i < 10; i++)
+			strcat(chr, " ");
+		strcat(chr, "\t");
+		strcat(chr, fp->Password);
+		for (int j = strlen(fp->Password); j < 12; j++)
+			strcat(chr, " ");
+		strcat(chr, "\t");
+		if (fp->Permission)
+			strcat(chr, "true");
+		else
+			strcat(chr, "false");
+		strcat(chr, "\n\n\n");
+		File = fopen("Annount.txt", "a");
+		fwrite(chr, 1, 36, File);
+		fclose(File);
+		fp = fp->AdmLink;
+	}
 }
 
 
-void login(logup* AnnCopy)
+void login(void)
 {
-	bool License = AnnCopy->Permission;
-	for (int i = 0; i <= strlen(AnnCopy->AdmName); i++)
+	bool License = Annount->Permission;
+	printf_s("%s\n", Annount->AdmName);
+	if (License)
 	{
-		printf_s("%c", AnnCopy->AdmName[i]);
+		while (true)
+		{
+			printf_s("$");
+			
+		}
 	}
-	
-	do
+	else
 	{
-		printf("\n$");
-	} while (identify(COMMAND) != "quit");
+		while (true)
+		{
+			printf_s(">");
+			
+		}
+	}
 }
 
 
 void quit(void)
 {
-
+	close();
+	printf("正在退出。。。\n");
+	exit(0);
 }
 
-logup* read_profile(void)
+
+void get_profile(void)
 {
-	logup Pro = { "", "", false, NULL };
-	char Information[255] = "";
-	fgets(Information, 255, File);
-	fgets(Information, 15, File);
-	strcpy_s(&Pro.AdmName, 11, Information);
-	fgets(Information, 17, File);
-	strcpy_s(&Pro.Password, 13, Information);
-	fgets(Information, 5, File);
-	if (Information == "true")
-		Pro.Permission = true;
-	return &Pro;
+	char Name[11];
+	char Pass[13];
+	char License[6];
+	logup* fp = AdmHLink = creat_profile();
+	File = fopen("Annount.txt", "r");
+	while (true)
+	{
+		if (fp != NULL)
+		{
+			if (fscanf_s(File, "%s%s%s\n\n\n", Name, 11, Pass, 13, License, 6) == -1)
+			{
+				free(fp);
+				break;
+			}
+			Name[10] = '\0';
+			strcpy_s(fp->AdmName, strlen(Name)+1, Name);
+			Pass[12] = '\0';
+			strcpy_s(fp->Password, strlen(Pass)+1, Pass);
+			License[5] = '\0';
+			if (strcmp(License, "true") == 0)
+				fp->Permission = true;
+			else
+				fp->Permission = false;
+			fp->AdmLink = NULL;
+			Index++;
+			fp = creat_profile();
+		}
+	}
+	fclose(File);
+}
+
+
+bool check_profile(char* chr)
+{
+	logup* fp = AdmHLink;
+	for (int i = 0; i < Index; i++)
+	{
+		if (strcmp(fp->AdmName, chr) == 0)
+		{
+			Annount = fp;
+			return true;
+		}
+		fp = fp->AdmLink;
+	}
+	return false;
+}
+
+
+bool link(logup* Profile, int Ind)
+{
+	logup* fp = AdmHLink;
+	for (int i = 0; i < Ind-2; i++)
+		fp = fp->AdmLink;
+	if (Ind < Index)
+		Profile->AdmLink = fp->AdmLink;
+	fp->AdmLink = Profile;
+	Index++;
+}
+
+
+logup* creat_profile(void)
+{
+	logup* Profile = (logup*)malloc(sizeof(logup));
+	return Profile;
+}
+
+
+logup* new_profile(char* Name)
+{
+	char Chr[255] = "";
+	logup* Profile = creat_profile();
+	strcpy_s(Profile->AdmName, strlen(Name) + 1, Name);
+	printf_s("请输入密码(<=12):");
+	strcpy(Chr, identify(3, PASSWORD, "请输入密码(<=12):"));
+	strcpy_s(Profile->Password, strlen(Chr) + 1, Chr);
+	if (Annount->Permission && strcmp(identify(2, YORN, "是否设为管理员(y/n)"), "y") == 0)
+		Profile->Permission = true;
+	else
+		Profile->Permission = false;
+	Profile->AdmLink = NULL;
+	return Profile;
+}
+
+
+void get_equipment(void)
+{
+	char Name[11];
+	char Rem[17];
+	char Purchase[17];
+	char MasterName[11];
+	char Storage[17];
+	char Sit[6];
+	creat* fp = EquHLink = creat_equipment();
+	File = fopen("Annount.txt", "r");
+	while (true)
+	{
+		if (fp != NULL)
+		{
+			if (fscanf_s(File, "%s%s%s%s%s%s\n\n\n", Name, 11, Rem, 17, Purchase, 17, Storage, 17, MasterName, 11, Sit, 6) == -1)
+			{
+				free(fp);
+				break;
+			}
+			Name[10] = '\0';
+			strcpy_s(fp->DevName, strlen(Name) + 1, Name);
+			Rem[16] = '\0';
+			strcpy_s(fp->Remark, strlen(Rem) + 1, Rem);
+			Purchase[16] = '\0';
+			strcpy_s(fp->PurchaseTime, strlen(Purchase) + 1, Purchase);
+			MasterName[10] = '\0';
+			strcpy_s(fp->Master, strlen(MasterName) + 1, MasterName);
+			Storage[16] = '\0';
+			strcpy_s(fp->StorageLocation, strlen(Storage) + 1, Storage);
+			MasterName[10] = '\0';
+			strcpy_s(fp->Master, strlen(MasterName) + 1, MasterName);
+			Sit[5] = '\0';
+			if (strcmp(Sit, "true") == 0)
+				fp->Situation = true;
+			else
+				fp->Situation = false;
+			fp->EquLink = NULL;
+			count++;
+			fp = creat_profile();
+		}
+	}
+	fclose(File);
+}
+
+
+creat* creat_equipment(void)
+{
+	creat* Equipment = (creat*)malloc(sizeof(creat));
+	return Equipment;
+}
+
+
+creat* init_equipment(void)
+{
+	creat* Equipment = creat_equipment();
+	char* Edit = NULL;
+	if (Equipment != NULL)
+	{
+		if (EquHLink == NULL)
+			EquHLink = Equipment;
+		printf_s("请输入设备名(<=10):");
+		Edit = identify(2, NAME, "请输入设备(<=10):");
+		strcpy_s(Equipment->DevName, strlen(Edit) + 1, Edit);
+		printf_s("请输入设备型号(<=16):");
+		Edit = identify(2, REMARK, "请输入设别型号(<=16):");
+		strcpy_s(Equipment->Remark, strlen(Edit) + 1, Edit);
+		printf_s("请输入采购时间(<=16):");
+		Edit = identify(2, REMARK, "请输入采购时间(<=16):");
+		strcpy_s(Equipment->PurchaseTime, strlen(Edit) + 1, Edit);
+		printf_s("请输入设备负责人姓名(<=10):");
+		Edit = identify(2, NAME, "请输入负责人姓名(<=10):");
+		strcpy_s(Equipment->Master, strlen(Edit) + 1, Edit);
+		printf_s("请输入储存位置(<=16):");
+		Edit = identify(2, REMARK, "请输入储存位置(<=16):");
+		strcpy_s(Equipment->StorageLocation, strlen(Edit) + 1, Edit);
+		Equipment->Situation = false;
+		Equipment->EquLink = NULL;
+		merege(Equipment, count);
+		return Equipment;
+	}
+	return NULL;
+}
+
+
+void merege(creat* Equipment, int Cou)
+{
+	creat* fp = EquHLink;
+	for (int i = 0; i < Cou - 2; i++)
+		fp = fp->EquLink;
+	if (Cou < count)
+		Equipment->EquLink = fp->EquLink;
+	fp->EquLink = Equipment;
+	count++;
 }
