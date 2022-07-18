@@ -120,7 +120,9 @@ void ls_p();
 
 void ls_v();
 
+bool del_profile(void);
 
+void del_equipment(void);
 
 int main(void)
 {
@@ -641,14 +643,14 @@ void login(logup* Copy)
 			}
 			else if (strcmp(Option, "-a") == 0)
 			{
-				if (check_equioment(Document))
+				if (check_equipment(Document))
 				{
 					if (check_info())
 						printf_s("'%s'已被借出,删除失败\n", Document);
 					else
 					{
 						del_equipment();
-						printf_s("'%s'删除成功\n");
+						printf_s("'%s'删除成功\n", Document);
 					}
 				}
 				else
