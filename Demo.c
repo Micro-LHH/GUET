@@ -124,6 +124,8 @@ bool del_profile(void);
 
 void del_equipment(void);
 
+void ls(void);
+
 int main(void)
 {
 	logo();
@@ -543,6 +545,8 @@ void login(logup* Copy)
 					ls_p();
 				else if ((strcmp(Option, "-v") == 0) || (strcmp(Option, "-V") == 0))
 					ls_v();
+				else if (strcmp(Option, "") == 0)
+					ls();
 				else
 					help(LS);
 			}
@@ -1284,4 +1288,20 @@ void del_equipment(void)
 		fp->EquLink;
 	}
 	fp->EquLink = fp->EquLink->EquLink;
+}
+
+
+
+void ls(void)
+{
+	logup* fp = AdmHLink;
+	for (int i = 0; i < Index; i++)
+	{
+		printf("%s\t", fp->AdmName);
+		if (fp->Permission)
+			printf_s("管理员\n");
+		else
+			printf_s("普通用户\n");
+		fp = fp->AdmLink;
+	}
 }
