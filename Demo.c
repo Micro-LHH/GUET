@@ -7,7 +7,7 @@
 #include<malloc.h>
 #include<time.h>
 #include<io.h>
-#define Version "0.4"
+#define Version "0.8"
 
 FILE* File = NULL;
 
@@ -138,8 +138,8 @@ int main(void)
 void logo(void)        //System Info
 {
 	printf("The Light Of Photoelectric %s\n", Version);
-	printf("°æÈ¨ËùÓĞ--GUET  ±£ÁôËùÓĞÈ¨Àû\n\n");
-	printf("´úÂëÏêÇé  https://github.com/Micro-LHH/The-Light-Of-Photoelectric\n\n\n");
+	printf("ç‰ˆæƒæ‰€æœ‰--GUET  ä¿ç•™æ‰€æœ‰æƒåˆ©\n\n");
+	printf("ä»£ç è¯¦æƒ…  https://github.com/Micro-LHH/The-Light-Of-Photoelectric\n\n\n");
 }
 
 
@@ -189,7 +189,7 @@ char* identify(int VaNum, ...)
 				return "n";
 			}
 			else
-				printf_s("'%s'ÇëÊäÈëºÏ·¨µÄÃüÁî(y/n)\n%s", ID, Command);
+				printf_s("'%s'è¯·è¾“å…¥åˆæ³•çš„å‘½ä»¤(y/n)\n%s", ID, Command);
 			break;
 
 		case LOG:
@@ -204,7 +204,7 @@ char* identify(int VaNum, ...)
 				return "logup";
 			}
 			else
-				printf_s("'%s'ÇëÊäÈëºÏ·¨µÄÃüÁî(login/logup)\n$", ID);
+				printf_s("'%s'è¯·è¾“å…¥åˆæ³•çš„å‘½ä»¤(login/logup)\n$", ID);
 			break;
 
 		case NAME:
@@ -214,7 +214,7 @@ char* identify(int VaNum, ...)
 				return ID;
 			}
 			else
-				printf_s("'%s'ÇëÊäÈëºÏ·¨³¤¶ÈµÄÃüÁî(< = 10)\n$", ID);
+				printf_s("'%s'è¯·è¾“å…¥åˆæ³•é•¿åº¦çš„å‘½ä»¤(< = 10)\n$", ID);
 			break;
 
 		case PASSWORD:
@@ -224,7 +224,7 @@ char* identify(int VaNum, ...)
 				return ID;
 			}
 			else
-				printf_s("'%s'ÇëÊäÈëºÏ·¨³¤¶ÈµÄÃüÁî(< = 12)\n$", ID);
+				printf_s("'%s'è¯·è¾“å…¥åˆæ³•é•¿åº¦çš„å‘½ä»¤(< = 12)\n$", ID);
 			break;
 
 		case REMARK:
@@ -234,7 +234,7 @@ char* identify(int VaNum, ...)
 				return ID;
 			}
 			else
-				printf_s("'%s'ÇëÊäÈëºÏ·¨³¤¶ÈµÄÃüÁî(< = 16)\n$", ID);
+				printf_s("'%s'è¯·è¾“å…¥åˆæ³•é•¿åº¦çš„å‘½ä»¤(< = 16)\n$", ID);
 			break;
 
 		case CHECK:
@@ -243,13 +243,13 @@ char* identify(int VaNum, ...)
 			case NAME:
 				if (check_profile(ID))
 				{
-					printf_s("ÃÜÂë:");
+					printf_s("å¯†ç :");
 					Check = PASSWORD;
-					Command = "ÃÜÂë:";
+					Command = "å¯†ç :";
 				}
 				else
 				{
-					printf_s("²éÎŞ´ËÕËºÅ,ÊÇ·ñ´´½¨(y/n)\n$");
+					printf_s("æŸ¥æ— æ­¤è´¦å·,æ˜¯å¦åˆ›å»º(y/n)\n$");
 					if (strcmp(identify(2, YORN, "$"), "y") == 0)
 					{
 						Annount = new_profile(ID);
@@ -266,12 +266,12 @@ char* identify(int VaNum, ...)
 					return "y";
 				else
 				{
-					printf_s("ÃÜÂë´íÎó,ÇëÖØĞÂÊäÈë\n%s", Command);
+					printf_s("å¯†ç é”™è¯¯,è¯·é‡æ–°è¾“å…¥\n%s", Command);
 					int err = 0;
 					err++;
 					if (err == 5)
 					{
-						printf_s("¶à´Î´íÎó,ÍË³ö\n");
+						printf_s("å¤šæ¬¡é”™è¯¯,é€€å‡º\n");
 						return "n";
 					}
 				}
@@ -295,11 +295,11 @@ void init(void)
 	pull_info();
 	if (Index == 0)
 	{
-		printf_s("ÓÃ»§Êı¾İ¶ªÊ§¡£¡£¡£\n");
-		printf_s("ÊÇ·ñ½øÈë³õÊ¼»¯Ä£Ê½(y/n)\n$");
+		printf_s("ç”¨æˆ·æ•°æ®ä¸¢å¤±ã€‚ã€‚ã€‚\n");
+		printf_s("æ˜¯å¦è¿›å…¥åˆå§‹åŒ–æ¨¡å¼(y/n)\n$");
 		if (strcmp(identify(2, YORN, "$"), "y") == 0)
 		{
-			printf_s("³õÊ¼»¯ÖĞ¡£¡£¡£\nSuperadministrator\n");
+			printf_s("åˆå§‹åŒ–ä¸­ã€‚ã€‚ã€‚\nSuperadministrator\n");
 			Annount = AdmHLink = init_profile(true);
 		}
 		else	
@@ -312,8 +312,8 @@ void init(void)
 			printf("Login/Logup\n$");
 			if (strcmp(identify(2, LOG, "$"), "login") == 0)
 			{
-				printf_s("ÓÃ»§Ãû:");
-				if (strcmp(identify(3, CHECK, "ÓÃ»§Ãû:", NAME), "y") == 0)
+				printf_s("ç”¨æˆ·å:");
+				if (strcmp(identify(3, CHECK, "ç”¨æˆ·å:", NAME), "y") == 0)
 					break;
 			}
 			else
@@ -369,7 +369,7 @@ void login(logup* Copy)
 		{
 			if ((strcmp(Document, "") == 0) && (strcmp(Option, "") == 0))
 				break;
-			printf_s("·Ç·¨Ê¹ÓÃÃüÁî'quit'\n");
+			printf_s("éæ³•ä½¿ç”¨å‘½ä»¤'quit'\n");
 			help(QUIT);
 		}
 		else if (strcmp(Command, "clear") == 0)
@@ -378,7 +378,7 @@ void login(logup* Copy)
 				system("cls");
 			else
 			{
-				printf_s("·Ç·¨Ê¹ÓÃÃüÁî'clear'\n");
+				printf_s("éæ³•ä½¿ç”¨å‘½ä»¤'clear'\n");
 				help(CLEAR);
 			}
 		}
@@ -392,7 +392,7 @@ void login(logup* Copy)
 						new_profile(Document);
 					else
 					{
-						printf_s("'%s'·Ç·¨ÊäÈë\n", Document);
+						printf_s("'%s'éæ³•è¾“å…¥\n", Document);
 						help(NAME);
 					}
 				}
@@ -407,7 +407,7 @@ void login(logup* Copy)
 						new_profile(Document);
 					else
 					{
-						printf_s("'%s'·Ç·¨ÊäÈë\n", Document);
+						printf_s("'%s'éæ³•è¾“å…¥\n", Document);
 						help(NAME);
 					}
 				}
@@ -422,7 +422,7 @@ void login(logup* Copy)
 						new_equipment(Document);
 					else
 					{
-						printf_s("'%s'·Ç·¨ÊäÈë\n", Document);
+						printf_s("'%s'éæ³•è¾“å…¥\n", Document);
 						help(NAME);
 					}
 				}
@@ -446,7 +446,7 @@ void login(logup* Copy)
 							{
 								while (true)
 								{
-									printf_s("ÃÜÂë:");
+									printf_s("å¯†ç :");
 									strcpy(Command, "");
 									get_order();
 									File = fopen("Command.txt", "r");
@@ -464,12 +464,12 @@ void login(logup* Copy)
 								}
 								else
 								{
-									printf_s("ÃÜÂë´íÎó\n");
+									printf_s("å¯†ç é”™è¯¯\n");
 									int err = 0;
 									err++;
 									if (err % 5 == 0)
 									{
-										printf("¶à´Î´íÎó,ÍË³ö\n");
+										printf("å¤šæ¬¡é”™è¯¯,é€€å‡º\n");
 										break;
 									}
 								}
@@ -477,7 +477,7 @@ void login(logup* Copy)
 						}
 						else
 						{
-							printf_s("²éÎŞ´ËÕËºÅ,ÊÇ·ñ´´½¨(y/n)\n%s", Prompt);
+							printf_s("æŸ¥æ— æ­¤è´¦å·,æ˜¯å¦åˆ›å»º(y/n)\n%s", Prompt);
 							if (strcmp(identify(2, YORN, Prompt), "y") == 0)
 							{
 								login(new_profile(Document));
@@ -487,7 +487,7 @@ void login(logup* Copy)
 					}
 					else
 					{
-						printf_s("'%s'·Ç·¨ÊäÈë\n", Document);
+						printf_s("'%s'éæ³•è¾“å…¥\n", Document);
 						help(NAME);
 					}
 				}
@@ -510,24 +510,24 @@ void login(logup* Copy)
 							if (check_profile(Document))
 							{
 								Annount->Permission = true;
-								printf_s("¹ÜÀíÔ±ÊÚÈ¨³É¹¦\n");
+								printf_s("ç®¡ç†å‘˜æˆæƒæˆåŠŸ\n");
 							}
 							else
 							{
-								printf_s("²éÎŞ´ËÕËºÅ,ÊÇ·ñ´´½¨(y/n)\n%s", Prompt);
+								printf_s("æŸ¥æ— æ­¤è´¦å·,æ˜¯å¦åˆ›å»º(y/n)\n%s", Prompt);
 								if (strcmp(identify(2, YORN, Prompt), "y") == 0)
 									new_profile(Document)->Permission = true;
 							}
 						}
 						else
 						{
-							printf_s("'%s'·Ç·¨ÊäÈë\n", Document);
+							printf_s("'%s'éæ³•è¾“å…¥\n", Document);
 							help(NAME);
 						}
 
 					}
 					else
-						printf_s("·Ç¹ÜÀíÔ±È¨ÏŞ,·Ç·¨Ê¹ÓÃsudoÃüÁî");
+						printf_s("éç®¡ç†å‘˜æƒé™,éæ³•ä½¿ç”¨sudoå‘½ä»¤");
 				}
 				else
 					help(SUDO);
@@ -560,14 +560,14 @@ void login(logup* Copy)
 				if (check_equipment(Document))
 				{
 					init_info(Device);
-					printf_s("'%s'½èÓÃ³É¹¦\n", Document);
+					printf_s("'%s'å€Ÿç”¨æˆåŠŸ\n", Document);
 				}
 				else
 				{
 					if (Copy->Permission)
 					{
-						printf_s("¸ÃÉè±¸²»´æÔÚ,ÊÇ·ñ´´½¨¸ÃÉè±¸(y/n)\n$");
-						if (strcmp(identify(2, YORN, "ÊÇ·ñ´´½¨¸ÃÉè±¸(y/n)\n$"), "y") == 0)
+						printf_s("è¯¥è®¾å¤‡ä¸å­˜åœ¨,æ˜¯å¦åˆ›å»ºè¯¥è®¾å¤‡(y/n)\n$");
+						if (strcmp(identify(2, YORN, "æ˜¯å¦åˆ›å»ºè¯¥è®¾å¤‡(y/n)\n$"), "y") == 0)
 							init_info(init_equipment(Document));
 					}		
 				}
@@ -584,17 +584,17 @@ void login(logup* Copy)
 					if (check_info(Device))
 					{
 						Record->ReturnTime = time(Tim);
-						printf_s("'%s'¹é»¹³É¹¦\n", Document);
+						printf_s("'%s'å½’è¿˜æˆåŠŸ\n", Document);
 					}
 					else
 					{
-						printf_s("Î´½èÓÃ´ËÉè±¸,ÊÇ·ñ½èÓÃ(y/n)\n%s", Prompt);
+						printf_s("æœªå€Ÿç”¨æ­¤è®¾å¤‡,æ˜¯å¦å€Ÿç”¨(y/n)\n%s", Prompt);
 						if (strcmp(identify(2, YORN, Prompt), "y") == 0)
 							init_info(Device);
 					}
 				}
 				else
-					printf_s("²»´æÔÚ´ËÉè±¸\n");
+					printf_s("ä¸å­˜åœ¨æ­¤è®¾å¤‡\n");
 			}
 			else
 				help(COMMIT);
@@ -617,13 +617,13 @@ void login(logup* Copy)
 						if (!check_info())
 						{
 							Device->Situation = false;
-							printf_s("'%s'½ûÓÃ³É¹¦\n", Document);
+							printf_s("'%s'ç¦ç”¨æˆåŠŸ\n", Document);
 						}
 						else
-							printf_s("'%s'ÒÑ±»½è³ö,½ûÓÃÊ§°Ü\n", Document);
+							printf_s("'%s'å·²è¢«å€Ÿå‡º,ç¦ç”¨å¤±è´¥\n", Document);
 					}
 					else
-						printf_s("'%s'ÎŞ´ËÉè±¸,½ûÓÃÊ§°Ü\n", Document);
+						printf_s("'%s'æ— æ­¤è®¾å¤‡,ç¦ç”¨å¤±è´¥\n", Document);
 				}
 				else
 					help(DISABLE);
@@ -638,27 +638,27 @@ void login(logup* Copy)
 				if (check_profile(Document))
 				{
 					if (del_profile())
-						printf_s("'%s'É¾³ı³É¹¦\n", Document);
+						printf_s("'%s'åˆ é™¤æˆåŠŸ\n", Document);
 					else
-						printf_s("'%s'ÓĞÎ´»¹Éè±¸,É¾³ıÊ§°Ü\n", Document);
+						printf_s("'%s'æœ‰æœªè¿˜è®¾å¤‡,åˆ é™¤å¤±è´¥\n", Document);
 				}
 				else
-					printf_s("'%s'ÎŞ´ËÓÃ»§,É¾³ıÊ§°Ü\n", Document);
+					printf_s("'%s'æ— æ­¤ç”¨æˆ·,åˆ é™¤å¤±è´¥\n", Document);
 			}
 			else if (strcmp(Option, "-a") == 0)
 			{
 				if (check_equipment(Document))
 				{
 					if (check_info())
-						printf_s("'%s'ÒÑ±»½è³ö,É¾³ıÊ§°Ü\n", Document);
+						printf_s("'%s'å·²è¢«å€Ÿå‡º,åˆ é™¤å¤±è´¥\n", Document);
 					else
 					{
 						del_equipment();
-						printf_s("'%s'É¾³ı³É¹¦\n", Document);
+						printf_s("'%s'åˆ é™¤æˆåŠŸ\n", Document);
 					}
 				}
 				else
-					printf_s("'%s'ÎŞ´ËÉè±¸,É¾³ıÊ§°Ü\n", Document);
+					printf_s("'%s'æ— æ­¤è®¾å¤‡,åˆ é™¤å¤±è´¥\n", Document);
 			}
 			else
 				help(DEL);
@@ -672,7 +672,7 @@ void login(logup* Copy)
 				printf_s(" %s'", Option);
 			else
 				printf_s("'");
-			printf_s("·Ç·¨ÃüÁî,Äã¿ÉÒÔ³¢ÊÔÊäÈëhelpÃüÁî»ñÈ¡¸ü¶àÃüÁîĞÅÏ¢\n");
+			printf_s("éæ³•å‘½ä»¤,ä½ å¯ä»¥å°è¯•è¾“å…¥helpå‘½ä»¤è·å–æ›´å¤šå‘½ä»¤ä¿¡æ¯\n");
 		}
 		Annount = Copy;
 	}
@@ -684,7 +684,7 @@ void quit(void)
 	push_profile();
 	push_equipment();
 	push_info();
-	printf("ÕıÔÚÍË³ö¡£¡£¡£\n");
+	printf("æ­£åœ¨é€€å‡ºã€‚ã€‚ã€‚\n");
 	exit(0);
 }
 
@@ -693,31 +693,31 @@ void help(enum identifier Identify)
 {
 	switch (Identify)
 	{
-	case ADD:printf_s("add -option [file] Äã¿ÉÒÔ³¢ÊÔÊäÈë: add -a [file] ´´½¨Ò»¸ö¹ÜÀíÔ±(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷) -p [file] ´´½¨Ò»ÆÕÍ¨ÓÃ»§ -v [file] ´´½¨Ò»¸öÉè±¸(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n"); break;
-	case CLEAR:printf_s("clear Äã¿ÉÒÔ³¢ÊÔÊäÈë: clear ÇåÆÁ\n"); break;
-	case QUIT:printf_s("quit Äã¿ÉÒÔ³¢ÊÔÊäÈë: quit ÍË³öÏµÍ³\n"); break;
-	case NAME:printf_s("ÃüÃû³¤¶È·Ç·¨(< = 10)\n"); break;
-	case REMARK:printf_s("ÃüÃû³¤¶È·Ç·¨(< = 16)\n"); break;
-	case SU:printf_s("su file Äã¿ÉÒÔ³¢ÊÔÊäÈë: su [file] ÇĞ»»ÓÃ»§\n"); break;
-	case SUDO:printf_s("sudo file Äã¿ÉÒÔ³¢ÊÔÊäÈë: sudo file ¸³Óè¸ÃÓÃ»§¹ÜÀíÔ±È¨ÏŞ(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n"); break;
-	case LS:printf_s("ls -option Äã¿ÉÒÔ³¢ÊÔÊäÈë: ls -a ²é¿´ËùÓĞÉè±¸ ls -p ²é¿´×ÔÉíËù¹ÜÀíµÄÉè±¸ ls -v ²é¿´×ÔÉíËù½èÓÃµÄÉè±¸\n"); break;
-	case HELP:printf_s("help Äã¿ÉÒÔ³¢ÊÔÊäÈë: help ²é¿´ËùÓĞÃüÁî\n"); break;
-	case FETCH:printf_s("fetch file Äã¿ÉÒÔ³¢ÊÔÊäÈë: fetch file ÉêÇë½èÓÃÉè±¸\n"); break;
-	case COMMIT:printf_s("commit file Äã¿ÉÒÔ³¢ÊÔÊäÈë: commit file ÉêÇë¹é»¹Éè±¸\n"); break;
-	case DISABLE:printf_s("disable file Äã¿ÉÒÔ³¢ÊÔÊäÈë: disable file ½ûÓÃÉè±¸(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n"); break;
-	case DEL:printf_s("del -option file Äã¿ÉÒÔ³¢ÊÔÊäÈë: del -a file É¾³ıÓÃ»§(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷) del -v file É¾³ıÉè±¸(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n"); break;
+	case ADD:printf_s("add -option [file] ä½ å¯ä»¥å°è¯•è¾“å…¥: add -a [file] åˆ›å»ºä¸€ä¸ªç®¡ç†å‘˜(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ) -p [file] åˆ›å»ºä¸€æ™®é€šç”¨æˆ· -v [file] åˆ›å»ºä¸€ä¸ªè®¾å¤‡(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n"); break;
+	case CLEAR:printf_s("clear ä½ å¯ä»¥å°è¯•è¾“å…¥: clear æ¸…å±\n"); break;
+	case QUIT:printf_s("quit ä½ å¯ä»¥å°è¯•è¾“å…¥: quit é€€å‡ºç³»ç»Ÿ\n"); break;
+	case NAME:printf_s("å‘½åé•¿åº¦éæ³•(< = 10)\n"); break;
+	case REMARK:printf_s("å‘½åé•¿åº¦éæ³•(< = 16)\n"); break;
+	case SU:printf_s("su file ä½ å¯ä»¥å°è¯•è¾“å…¥: su [file] åˆ‡æ¢ç”¨æˆ·\n"); break;
+	case SUDO:printf_s("sudo file ä½ å¯ä»¥å°è¯•è¾“å…¥: sudo file èµ‹äºˆè¯¥ç”¨æˆ·ç®¡ç†å‘˜æƒé™(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n"); break;
+	case LS:printf_s("ls -option ä½ å¯ä»¥å°è¯•è¾“å…¥: ls -a æŸ¥çœ‹æ‰€æœ‰è®¾å¤‡ ls -p æŸ¥çœ‹è‡ªèº«æ‰€ç®¡ç†çš„è®¾å¤‡ ls -v æŸ¥çœ‹è‡ªèº«æ‰€å€Ÿç”¨çš„è®¾å¤‡\n"); break;
+	case HELP:printf_s("help ä½ å¯ä»¥å°è¯•è¾“å…¥: help æŸ¥çœ‹æ‰€æœ‰å‘½ä»¤\n"); break;
+	case FETCH:printf_s("fetch file ä½ å¯ä»¥å°è¯•è¾“å…¥: fetch file ç”³è¯·å€Ÿç”¨è®¾å¤‡\n"); break;
+	case COMMIT:printf_s("commit file ä½ å¯ä»¥å°è¯•è¾“å…¥: commit file ç”³è¯·å½’è¿˜è®¾å¤‡\n"); break;
+	case DISABLE:printf_s("disable file ä½ å¯ä»¥å°è¯•è¾“å…¥: disable file ç¦ç”¨è®¾å¤‡(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n"); break;
+	case DEL:printf_s("del -option file ä½ å¯ä»¥å°è¯•è¾“å…¥: del -a file åˆ é™¤ç”¨æˆ·(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ) del -v file åˆ é™¤è®¾å¤‡(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n"); break;
 	case ALL:
-		printf_s("add -option [file] Äã¿ÉÒÔ³¢ÊÔÊäÈë: add -a [file] ´´½¨Ò»¸ö¹ÜÀíÔ±(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷) -p [file] ´´½¨Ò»ÆÕÍ¨ÓÃ»§ -v [file] ´´½¨Ò»¸öÉè±¸(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n");
-		printf_s("clear Äã¿ÉÒÔ³¢ÊÔÊäÈë: clear ÇåÆÁ\n"); 
-		printf_s("quit Äã¿ÉÒÔ³¢ÊÔÊäÈë: quit ÍË³öÏµÍ³\n");
-		printf_s("su file Äã¿ÉÒÔ³¢ÊÔÊäÈë: su [file] ÇĞ»»ÓÃ»§\n");
-		printf_s("sudo file Äã¿ÉÒÔ³¢ÊÔÊäÈë: sudo file ¸³Óè¸ÃÓÃ»§¹ÜÀíÔ±È¨ÏŞ(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n");
-		printf_s("ls -option Äã¿ÉÒÔ³¢ÊÔÊäÈë: ls -a ²é¿´ËùÓĞÉè±¸ ls -p ²é¿´×ÔÉíËù¹ÜÀíµÄÉè±¸ ls -v ²é¿´×ÔÉíËù½èÓÃµÄÉè±¸\n");
-		printf_s("help Äã¿ÉÒÔ³¢ÊÔÊäÈë: help ²é¿´ËùÓĞÃüÁî\n"); 
-		printf_s("fetch file Äã¿ÉÒÔ³¢ÊÔÊäÈë: fetch file ÉêÇë½èÓÃÒÇÆ÷\n");
-		printf_s("commit file Äã¿ÉÒÔ³¢ÊÔÊäÈë: commit file ÉêÇë¹é»¹Éè±¸\n");
-		printf_s("disable file Äã¿ÉÒÔ³¢ÊÔÊäÈë: disable file ½ûÓÃÉè±¸(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n");
-		printf_s("del -option file Äã¿ÉÒÔ³¢ÊÔÊäÈë: del -a file É¾³ıÓÃ»§(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷) del -v file É¾³ıÉè±¸(Ö»ÓĞ¹ÜÀíÔ±¿ÉÒÔ½øĞĞ´Ë²Ù×÷)\n"); break;
+		printf_s("add -option [file] ä½ å¯ä»¥å°è¯•è¾“å…¥: add -a [file] åˆ›å»ºä¸€ä¸ªç®¡ç†å‘˜(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ) -p [file] åˆ›å»ºä¸€æ™®é€šç”¨æˆ· -v [file] åˆ›å»ºä¸€ä¸ªè®¾å¤‡(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n");
+		printf_s("clear ä½ å¯ä»¥å°è¯•è¾“å…¥: clear æ¸…å±\n"); 
+		printf_s("quit ä½ å¯ä»¥å°è¯•è¾“å…¥: quit é€€å‡ºç³»ç»Ÿ\n");
+		printf_s("su file ä½ å¯ä»¥å°è¯•è¾“å…¥: su [file] åˆ‡æ¢ç”¨æˆ·\n");
+		printf_s("sudo file ä½ å¯ä»¥å°è¯•è¾“å…¥: sudo file èµ‹äºˆè¯¥ç”¨æˆ·ç®¡ç†å‘˜æƒé™(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n");
+		printf_s("ls -option ä½ å¯ä»¥å°è¯•è¾“å…¥: ls -a æŸ¥çœ‹æ‰€æœ‰è®¾å¤‡ ls -p æŸ¥çœ‹è‡ªèº«æ‰€ç®¡ç†çš„è®¾å¤‡ ls -v æŸ¥çœ‹è‡ªèº«æ‰€å€Ÿç”¨çš„è®¾å¤‡\n");
+		printf_s("help ä½ å¯ä»¥å°è¯•è¾“å…¥: help æŸ¥çœ‹æ‰€æœ‰å‘½ä»¤\n"); 
+		printf_s("fetch file ä½ å¯ä»¥å°è¯•è¾“å…¥: fetch file ç”³è¯·å€Ÿç”¨ä»ªå™¨\n");
+		printf_s("commit file ä½ å¯ä»¥å°è¯•è¾“å…¥: commit file ç”³è¯·å½’è¿˜è®¾å¤‡\n");
+		printf_s("disable file ä½ å¯ä»¥å°è¯•è¾“å…¥: disable file ç¦ç”¨è®¾å¤‡(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n");
+		printf_s("del -option file ä½ å¯ä»¥å°è¯•è¾“å…¥: del -a file åˆ é™¤ç”¨æˆ·(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ) del -v file åˆ é™¤è®¾å¤‡(åªæœ‰ç®¡ç†å‘˜å¯ä»¥è¿›è¡Œæ­¤æ“ä½œ)\n"); break;
 	default:
 		break;
 	}
@@ -773,13 +773,13 @@ logup* init_profile(bool License)
 	{
 		if (Index == 0)
 			AdmHLink = Profile;
-		printf_s("ÇëÊäÈëÓÃ»§Ãû(< = 10):");
-		Edit = identify(2, NAME, "ÇëÊäÈëÓÃ»§Ãû(< = 10):");
+		printf_s("è¯·è¾“å…¥ç”¨æˆ·å(< = 10):");
+		Edit = identify(2, NAME, "è¯·è¾“å…¥ç”¨æˆ·å(< = 10):");
 		if (!check_profile(Edit))
 		{
 			strcpy_s(Profile->AdmName, strlen(Edit) + 1, Edit);
-			printf_s("ÇëÊäÈëÃÜÂë(< = 12):");
-			Edit = identify(2, PASSWORD, "ÇëÊäÈëÃÜÂë(< = 12):");
+			printf_s("è¯·è¾“å…¥å¯†ç (< = 12):");
+			Edit = identify(2, PASSWORD, "è¯·è¾“å…¥å¯†ç (< = 12):");
 			strcpy_s(Profile->Password, strlen(Edit) + 1, Edit);
 			Profile->Permission = License;
 			Profile->AdmLink = NULL;
@@ -787,7 +787,7 @@ logup* init_profile(bool License)
 			return Profile;
 		}
 		else
-			printf_s("ÃüÃû³åÍ»\n");
+			printf_s("å‘½åå†²çª\n");
 	}
 	return NULL;
 }
@@ -798,14 +798,14 @@ logup* new_profile(char* Name)
 	char Chr[255] = "";
 	logup* Profile = creat_profile();
 	strcpy_s(Profile->AdmName, strlen(Name) + 1, Name);
-	printf_s("ÇëÊäÈëÃÜÂë(< = 12):");
-	strcpy(Chr, identify(3, PASSWORD, "ÇëÊäÈëÃÜÂë(< = 12):"));
+	printf_s("è¯·è¾“å…¥å¯†ç (< = 12):");
+	strcpy(Chr, identify(3, PASSWORD, "è¯·è¾“å…¥å¯†ç (< = 12):"));
 	strcpy_s(Profile->Password, strlen(Chr) + 1, Chr);
 	if (Annount != NULL)
 	{
 		if (Annount->Permission)
 		{
-			printf_s("ÊÇ·ñÉèÎª¹ÜÀíÔ±(y/n)\n$");
+			printf_s("æ˜¯å¦è®¾ä¸ºç®¡ç†å‘˜(y/n)\n$");
 			if (strcmp(identify(2, YORN, "$"), "y") == 0)
 				Profile->Permission = true;
 			else
@@ -940,20 +940,20 @@ make* init_equipment(void)
 	{
 		if (Count == 0)
 			EquHLink = Equipment;
-		printf_s("ÇëÊäÈëÉè±¸Ãû(< = 10):");
-		Edit = identify(2, NAME, "ÇëÊäÈëÉè±¸(< = 10):");
+		printf_s("è¯·è¾“å…¥è®¾å¤‡å(< = 10):");
+		Edit = identify(2, NAME, "è¯·è¾“å…¥è®¾å¤‡(< = 10):");
 		if (!check_equipment(Edit))
 		{
 			strcpy_s(Equipment->EquName, strlen(Edit) + 1, Edit);
-			printf_s("ÇëÊäÈëÉè±¸ĞÍºÅ(< = 16):");
-			Edit = identify(2, REMARK, "ÇëÊäÈëÉè±ğĞÍºÅ(< = 16):");
+			printf_s("è¯·è¾“å…¥è®¾å¤‡å‹å·(< = 16):");
+			Edit = identify(2, REMARK, "è¯·è¾“å…¥è®¾åˆ«å‹å·(< = 16):");
 			strcpy_s(Equipment->Remark, strlen(Edit) + 1, Edit);
-			printf_s("ÇëÊäÈë²É¹ºÊ±¼ä(< = 16):");
-			Edit = identify(2, REMARK, "ÇëÊäÈë²É¹ºÊ±¼ä(< = 16):");
+			printf_s("è¯·è¾“å…¥é‡‡è´­æ—¶é—´(< = 16):");
+			Edit = identify(2, REMARK, "è¯·è¾“å…¥é‡‡è´­æ—¶é—´(< = 16):");
 			strcpy_s(Equipment->PurchaseTime, strlen(Edit) + 1, Edit);
 			Equipment->Master = Annount;
-			printf_s("ÇëÊäÈë´¢´æÎ»ÖÃ(< = 16):");
-			Edit = identify(2, REMARK, "ÇëÊäÈë´¢´æÎ»ÖÃ(< = 16):");
+			printf_s("è¯·è¾“å…¥å‚¨å­˜ä½ç½®(< = 16):");
+			Edit = identify(2, REMARK, "è¯·è¾“å…¥å‚¨å­˜ä½ç½®(< = 16):");
 			strcpy_s(Equipment->StorageLocation, strlen(Edit) + 1, Edit);
 			Equipment->Situation = true;
 			Equipment->EquLink = NULL;
@@ -961,7 +961,7 @@ make* init_equipment(void)
 			return Equipment;
 		}
 		else
-			printf_s("ÃüÃû³åÍ»\n");
+			printf_s("å‘½åå†²çª\n");
 	}
 	return NULL;
 }
@@ -976,15 +976,15 @@ make* new_equipment(char* Name)
 		if (EquHLink == NULL)
 			EquHLink = Equipment;
 		strcpy_s(Equipment->EquName, strlen(Name) + 1, Name);
-		printf_s("ÇëÊäÈëÉè±¸ĞÍºÅ(<=16):");
-		Edit = identify(2, REMARK, "ÇëÊäÈëÉè±ğĞÍºÅ(< = 16):");
+		printf_s("è¯·è¾“å…¥è®¾å¤‡å‹å·(<=16):");
+		Edit = identify(2, REMARK, "è¯·è¾“å…¥è®¾åˆ«å‹å·(< = 16):");
 		strcpy_s(Equipment->Remark, strlen(Edit) + 1, Edit);
-		printf_s("ÇëÊäÈë²É¹ºÊ±¼ä(<=16):");
-		Edit = identify(2, REMARK, "ÇëÊäÈë²É¹ºÊ±¼ä(< = 16):");
+		printf_s("è¯·è¾“å…¥é‡‡è´­æ—¶é—´(<=16):");
+		Edit = identify(2, REMARK, "è¯·è¾“å…¥é‡‡è´­æ—¶é—´(< = 16):");
 		strcpy_s(Equipment->PurchaseTime, strlen(Edit) + 1, Edit);
 		Equipment->Master = Annount;
-		printf_s("ÇëÊäÈë´¢´æÎ»ÖÃ(<=16):");
-		Edit = identify(2, REMARK, "ÇëÊäÈë´¢´æÎ»ÖÃ(< = 16):");
+		printf_s("è¯·è¾“å…¥å‚¨å­˜ä½ç½®(<=16):");
+		Edit = identify(2, REMARK, "è¯·è¾“å…¥å‚¨å­˜ä½ç½®(< = 16):");
 		strcpy_s(Equipment->StorageLocation, strlen(Edit) + 1, Edit);
 		Equipment->Situation = true;
 		Equipment->EquLink = NULL;
@@ -1123,7 +1123,7 @@ generate* init_info(make* Equ)
 		merege_info(Info, History);
 	}
 	else
-		printf("´ËÉè±¸ÒÑ±»½ûÓÃ\n");
+		printf("æ­¤è®¾å¤‡å·²è¢«ç¦ç”¨\n");
 }
 
 void push_info(void)
@@ -1185,7 +1185,7 @@ void ls_a(void)
 	char chr[120] = "";
 	if (Count != 0)
 	{
-		printf("ÒÇÆ÷Ãû\t\tĞÍºÅ\t\t\t²É¹ºÊ±¼ä\t\t´¢´æµØµã\t\t¹ÜÀíÕß\t\t×´Ì¬\n");
+		printf("ä»ªå™¨å\t\tå‹å·\t\t\té‡‡è´­æ—¶é—´\t\tå‚¨å­˜åœ°ç‚¹\t\tç®¡ç†è€…\t\tçŠ¶æ€\n");
 		for (int i = 0; i < Count; i++)
 		{
 			strcpy_s(chr, strlen(fp->EquName) + 1, fp->EquName);
@@ -1213,22 +1213,22 @@ void ls_a(void)
 				Device = fp;
 				if (check_info())
 				{
-					strcat(chr, "ÒÑ½è³ö");
+					strcat(chr, "å·²å€Ÿå‡º");
 					strcat(chr, "-");
 					strcat(chr, ctime(&Record->BorrowTime));
 				}
 				else
-					strcat(chr, "¿É½è");
+					strcat(chr, "å¯å€Ÿ");
 			}
 			else
-				strcat(chr, "½ûÓÃ");
+				strcat(chr, "ç¦ç”¨");
 			printf_s("%s\n", chr);
 			strcpy(chr, "");
 			fp = fp->EquLink;
 		}
 	}
 	else
-		printf_s("ÔİÎŞÉè±¸\n");
+		printf_s("æš‚æ— è®¾å¤‡\n");
 }
 
 
@@ -1299,9 +1299,9 @@ void ls(void)
 	{
 		printf("%s\t", fp->AdmName);
 		if (fp->Permission)
-			printf_s("¹ÜÀíÔ±\n");
+			printf_s("ç®¡ç†å‘˜\n");
 		else
-			printf_s("ÆÕÍ¨ÓÃ»§\n");
+			printf_s("æ™®é€šç”¨æˆ·\n");
 		fp = fp->AdmLink;
 	}
 }
